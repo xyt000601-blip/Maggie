@@ -23,7 +23,7 @@
       min-height: 100vh;
     }
 
-    /* 背景：把你的图片放到 /images/restaurant.jpg */
+    /* 背景：把图片放到 /images/restaurant.jpg */
     body::before{
       content:"";
       position:fixed;
@@ -59,31 +59,17 @@
       border: 1px solid rgba(201,168,106,.22);
     }
 
-    .brand-row{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:14px;
-    }
-
     .brand{
       font-size:16px;
       letter-spacing:.18em;
       text-transform:uppercase;
       color: var(--gold);
-      margin-bottom: 10px;
-      font-weight: 750;
-    }
-
-    h1{
-      margin:0;
-      font-size:32px;
-      letter-spacing:.02em;
-      color: var(--green-deep);
+      margin: 0 0 10px;
+      font-weight: 800;
     }
 
     .sub{
-      margin:8px 0 0;
+      margin:0 0 12px;
       color: var(--muted);
       font-size: 14px;
       line-height: 1.45;
@@ -93,43 +79,53 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top: 12px;
+      margin-top: 6px;
     }
 
     .pill{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(15,61,46,.08);
+      background: rgba(15,61,46,.07);
       border: 1px solid rgba(15,61,46,.10);
-      color: rgba(15,61,46,.85);
+      color: rgba(15,61,46,.86);
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 650;
     }
 
+    /* 高级细描边金色（request-only） */
     .pill.gold{
-      background: rgba(201,168,106,.14);
-      border: 1px solid rgba(201,168,106,.22);
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(201,168,106,.55);
       color: rgba(120,86,30,.92);
+      font-weight: 700;
     }
 
-    .call{
-      align-self:flex-start;
-      text-decoration:none;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid rgba(201,168,106,.35);
-      background: rgba(201,168,106,.16);
-      color: rgba(120,86,30,.95);
-      font-weight: 750;
-      font-size: 13px;
-      backdrop-filter: blur(10px);
-      transition: .2s ease;
-      white-space: nowrap;
+    /* Open + Call 同行的 pill */
+    .pill-open{
+      justify-content: space-between;
+      gap: 10px;
+      flex: 1 1 auto; /* 让它优先占宽 */
+      min-width: 240px;
     }
-    .call:hover{
+
+    /* Call 变成小按钮，嵌入 pill */
+    .call-inline{
+      text-decoration:none;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(201,168,106,.45);
+      background: rgba(201,168,106,.16);
+      color: rgba(120,86,30,.96);
+      font-weight: 850;
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      transition: .2s ease;
+    }
+    .call-inline:hover{
       background: rgba(201,168,106,.24);
       transform: translateY(-1px);
     }
@@ -138,7 +134,7 @@
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:14px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     label{
@@ -182,7 +178,6 @@
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
-
       background: linear-gradient(135deg, var(--gold), #b89655);
       color: #fff;
       cursor: pointer;
@@ -287,14 +282,27 @@
       color: var(--muted);
     }
 
+    /* 手机端：高级菜单式（三行） */
     @media(max-width:720px){
       .grid{ grid-template-columns:1fr; }
       .wrap{ margin: 28px auto; }
       .card{ padding: 22px; }
-      h1{ font-size: 26px; }
-      .brand-row{ flex-direction:column; }
-      .call{ width: fit-content; }
       .time-grid{ grid-template-columns: repeat(3, 1fr); }
+
+      .pill-row{
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .pill{
+        width: 100%;
+        justify-content: space-between;
+      }
+      .pill-open{
+        width: 100%;
+      }
+      .call-inline{
+        padding: 8px 12px; /* 手机上更好点 */
+      }
     }
   </style>
 </head>
@@ -303,21 +311,23 @@
   <div class="wrap">
     <div class="card">
 
-      <div class="brand-row">
-        <div>
-          <div class="brand">MAGGIE BAKERY</div>
-          <h1>Reservations</h1>
-          <p class="sub">Submit a request and we’ll confirm your booking shortly.</p>
+      <div class="brand">MAGGIE BAKERY</div>
+      <p class="sub">Submit a request and we’ll confirm your booking shortly.</p>
 
-          <div class="pill-row">
-  <div class="pill">Open 10:00 – 20:00</div>
-  <div class="pill">1/200 Dairy Flat Highway</div>
-  <div class="pill gold">Request only · Confirmation required</div>
-</div>
+      <!-- 高级菜单式信息条 -->
+      <div class="pill-row">
+        <div class="pill pill-open">
+          <span>Open 10:00 – 20:00</span>
+          <a class="call-inline" href="tel:+64223189478">Call</a>
+        </div>
 
+        <div class="pill">
+          <span>1/200 Dairy Flat Highway</span>
+        </div>
 
-        <!-- 改成你的真实电话 -->
-        <a class="call" href="tel:+64223189478">Call</a>
+        <div class="pill gold">
+          <span>Request only · Confirmation required</span>
+        </div>
       </div>
 
       <form id="form" method="POST" target="hidden_iframe">
@@ -358,10 +368,8 @@
           <div>
             <label>Time</label>
 
-            <!-- 可点击时间按钮会生成在这里 -->
             <div id="timeGrid" class="time-grid" aria-live="polite"></div>
 
-            <!-- 保留原 select 给表单提交用（隐藏） -->
             <select name="time" id="time" required class="sr-only" tabindex="-1" aria-hidden="true">
               <option value="">Select a date first</option>
             </select>
@@ -387,12 +395,12 @@
     </div>
 
     <div class="foot">
-      Need help? <a href="tel:+64XXXXXXXXX">Call us</a>
+      Need help? <a href="tel:+64223189478">Call us</a>
     </div>
   </div>
 
 <script>
-  // Apps Script Web App URL（保持你的）
+  // Apps Script Web App URL
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
   // Business hours: 10:00–20:00, 30-min slots
@@ -556,7 +564,6 @@
   let pendingSubmit = false;
 
   form.addEventListener("submit", (e) => {
-    // 必须选时间（按钮会同步隐藏 select）
     if (!timeEl.value) {
       e.preventDefault();
       show(bad, "Please select a time.");
@@ -596,5 +603,4 @@
 
 </body>
 </html>
-
 
