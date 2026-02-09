@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reservation</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #f6f6f7; }
+    .wrap { max-width: 720px; margin: 48px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 28px rgba(0,0,0,.06); }
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    p.sub { margin: 0 0 18px; color: #666; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label { display:block; font-size: 13px; color:#333; margin: 10px 0 6px; }
+    input, select, textarea {
+      width: 100%; box-sizing: border-box;
+      border: 1px solid #e5e5e8; border-radius: 12px;
+      padding: 12px 12px; font-size: 15px; outline: none;
+      background: #fff;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: #b9b9ff; box-shadow: 0 0 0 4px rgba(120,120,255,.12); }
+    .btn {
+      margin-top: 16px; width: 100%;
+      border: 0; border-radius: 14px;
+      padding: 12px 14px; font-size: 16px;
+      background: #111; color: #fff; cursor: pointer;
+    }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .note { margin-top: 10px; color:#666; font-size: 13px; }
+    .toast { margin-top: 12px; padding: 12px; border-radius: 12px; font-size: 14px; display:none; }
+    .ok { background:#e9f9ee; color:#146c2e; }
+    .bad { background:#ffecec; color:#8b1a1a; }
+    @media (max-width: 640px){ .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Reservation</h1>
+      <p class="sub">Select guests, date and time. We’ll confirm shortly.</p>
+
+      <form id="form" method="POST" target="hidden_iframe">
+        <div class="grid">
+          <div>
+            <label>Name</label>
+            <input name="name" required autocomplete="name" />
+          </div>
+          <div>
+            <label>Phone</label>
+            <input name="phone" required autocomplete="tel" />
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Email (optional)</label>
+            <input name="email" type="email" autocomplete="email" />
+          </div>
+          <div>
+            <label>Guests</label>
+            <select name="guests" id="guests" required>
+              <option value="">Select</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+              <option value="8+">8+</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Date</label>
+            <input name="date" id="date" type="date" required />
+          </div>
+          <div>
+            <label>Time</label>
+            <select name="time" id="time" required>
+              <option value="">Select a date first</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Notes (optional)</label>
+        <textarea name="notes" placeholder="Allergies, high chair, birthday..."></textarea>
+
+        <button class="btn" id="btn" type="submit">Request a booking</button>
+        <div class="note">For 8+ guests, please contact us to confirm availability.</div>
+
+        <div class="toast ok" id="ok">Submitted! We’ll confirm soon.</div>
+        <div class="toast bad" id="bad"></div>
+      </form>
+
+      <!-- 放在 form 外面更稳 -->
+      <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Apps Script Web App URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
+
+    // Business hours: 10:00–20:00, 30-min slots
+    const OPEN_HOURS = { start: "10:00", end: "20:00" };
+    const SLOT_MINUTES = 30;
+
+    const $ = (id) => document.getElementById(id);
+
+    const form = $("form");
+    const iframe = $("hidden_iframe");
+    const dateEl = $("date");
+    const timeEl = $("time");
+    const btn = $("btn");
+    const ok = $("ok");
+    const bad = $("bad");
+    const guestsEl = $("guests");
+
+    // 安全检查
+    if (!form || !iframe) {
+      alert("Form or iframe not found. Please check your HTML ids.");
+      throw new Error("Missing form/iframe");
+    }
+
+    // 让表单提交到 Apps Script
+    form.action = SCRIPT_URL;
+
+    // 状态：用 iframe.onload 判断提交完成（比 postMessage 稳）
+    let pendingSubmit = false;
+
+    // date min = today
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    dateEl.min = `${yyyy}-${mm}-${dd}`;
+
+    function toMinutes(t){
+      const [h,m] = t.split(":").map(Number);
+      return h*60 + m;
+    }
+    function toHHMM(min){
+      const h = String(Math.floor(min/60)).padStart(2,"0");
+      const m = String(min%60).padStart(2,"0");
+      return `${h}:${m}`;
+    }
+
+    function buildSlots(){
+      const slots = [];
+      let s = toMinutes(OPEN_HOURS.start);
+      const e = toMinutes(OPEN_HOURS.end);
+      while (s <= e){
+        slots.push(toHHMM(s));
+        s += SLOT_MINUTES;
+      }
+      return slots;
+    }
+
+    function refreshTimes(){
+      const d = dateEl.value;
+      timeEl.disabled = !d;
+      timeEl.innerHTML = "";
+
+      if (!d){
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Select a date first";
+        timeEl.appendChild(opt);
+        return;
+      }
+
+      const first = document.createElement("option");
+      first.value = "";
+      first.textContent = "Select";
+      timeEl.appendChild(first);
+
+      for (const s of buildSlots()){
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        timeEl.appendChild(opt);
+      }
+    }
+
+    function show(el, msg){
+      ok.style.display = "none";
+      bad.style.display = "none";
+      if (msg) el.textContent = msg;
+      el.style.display = "block";
+    }
+
+    dateEl.addEventListener("change", refreshTimes);
+
+    guestsEl.addEventListener("change", () => {
+      if (guestsEl.value === "8+") {
+        alert("For 8+ guests, please contact us to confirm availability.");
+      }
+    });
+
+    // 点击提交：进入 submitting 状态
+    form.addEventListener("submit", () => {
+      ok.style.display = "none";
+      bad.style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+      pendingSubmit = true;
+
+      // 超时兜底：避免真的卡死
+      setTimeout(() => {
+        if (pendingSubmit) {
+          pendingSubmit = false;
+          btn.disabled = false;
+          btn.textContent = "Request a booking";
+          show(bad, "Submitted, but no confirmation returned. Please check the sheet.");
+        }
+      }, 10000);
+    });
+
+    // iframe 加载完成：视为提交完成（doPost 返回页面加载完成）
+    iframe.addEventListener("load", () => {
+      if (!pendingSubmit) return; // 过滤首次空载入
+      pendingSubmit = false;
+
+      btn.disabled = false;
+      btn.textContent = "Request a booking";
+
+      show(ok, "Submitted! We’ll confirm soon.");
+      form.reset();
+      refreshTimes();
+    });
+
+    // 初始化
+    refreshTimes();
+  </script>
+</body>
+</html>
