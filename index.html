@@ -7,10 +7,8 @@
 
   <style>
     :root{
-      --green:#0f3d2e;
       --gold:#c9a86a;
       --gold2:#b89655;
-      --text:#16221c;
       --muted:#5c6b63;
       --card: rgba(255,255,255,.92);
       --stroke: rgba(201,168,106,.22);
@@ -23,8 +21,8 @@
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       min-height: 100vh;
-      color: var(--text);
       background: linear-gradient(rgba(13,55,40,.76), rgba(13,55,40,.90));
+      color:#16221c;
     }
 
     body::before{
@@ -37,11 +35,7 @@
       z-index:-2;
     }
 
-    .wrap{
-      max-width: 920px;
-      margin: 56px auto;
-      padding: 0 16px 64px;
-    }
+    .wrap{ max-width: 920px; margin: 56px auto; padding: 0 16px 64px; }
 
     .card{
       background: var(--card);
@@ -67,14 +61,10 @@
       text-align:center;
       color: var(--muted);
       font-size: 14px;
+      line-height:1.5;
     }
 
-    .info{
-      margin-top: 18px;
-      display:grid;
-      gap:10px;
-      justify-content:center;
-    }
+    .info{ margin-top: 18px; display:grid; gap:10px; justify-content:center; }
 
     .pill{
       display:flex;
@@ -91,17 +81,12 @@
       width: min(520px, 100%);
       margin: 0 auto;
     }
-
-    .pill.has-call{
-      justify-content: space-between;
-    }
-
+    .pill.has-call{ justify-content: space-between; }
     .pill.gold{
       background: rgba(255,255,255,.55);
       border: 1px solid rgba(201,168,106,.55);
       color: rgba(120,86,30,.92);
     }
-
     .pill a{
       color: rgba(15,61,46,.86);
       text-decoration:none;
@@ -117,6 +102,7 @@
       color: rgba(120,86,30,.96);
       font-weight: 900;
       font-size: 12px;
+      white-space:nowrap;
     }
 
     .grid{
@@ -143,7 +129,6 @@
       font-size: 15px;
       outline:none;
     }
-
     textarea{ min-height: 96px; resize: vertical; }
 
     .btn{
@@ -159,14 +144,9 @@
       background: linear-gradient(135deg, var(--gold), var(--gold2));
       color:#fff;
       cursor:pointer;
+      transition:.15s;
     }
-
-    .note{
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--muted);
-      text-align:center;
-    }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
     .toast{
       margin-top: 12px;
@@ -193,17 +173,13 @@
       font-size:14px;
       font-weight:800;
       cursor:pointer;
+      transition:.12s;
     }
-
     .time-btn.selected{
       border-color: rgba(201,168,106,.85);
       box-shadow: 0 0 0 4px rgba(201,168,106,.18);
     }
-
-    .time-btn.disabled{
-      opacity:.45;
-      cursor:not-allowed;
-    }
+    .time-btn.disabled{ opacity:.45; cursor:not-allowed; }
 
     @media(max-width:720px){
       .grid{ grid-template-columns:1fr; }
@@ -222,11 +198,12 @@
       <div class="info">
         <div class="pill has-call">
           <span>Open 10am – 7pm</span>
+          <!-- ✅ 改成你的真实电话 -->
           <a class="call" href="tel:+64223189478">Call</a>
         </div>
 
         <div class="pill">
-          <a target="_blank"
+          <a target="_blank" rel="noopener"
              href="https://www.google.com/maps/search/?api=1&query=1%2F200%20Dairy%20Flat%20Highway">
             1/200 Dairy Flat Highway
           </a>
@@ -238,22 +215,21 @@
       </div>
 
       <form id="form" method="POST" target="hidden_iframe">
-
         <div class="grid">
           <div>
             <label>Name</label>
-            <input name="name" required />
+            <input name="name" required autocomplete="name" />
           </div>
           <div>
             <label>Phone</label>
-            <input name="phone" required />
+            <input name="phone" required autocomplete="tel" />
           </div>
         </div>
 
         <div class="grid">
           <div>
             <label>Email (optional)</label>
-            <input name="email" type="email" />
+            <input name="email" type="email" autocomplete="email" />
           </div>
           <div>
             <label>Guests</label>
@@ -275,16 +251,20 @@
           <div>
             <label>Time</label>
             <div id="timeGrid" class="time-grid"></div>
-            <select name="time" id="time" hidden></select>
+
+            <!-- ✅ hidden select：给表单提交用 -->
+            <select name="time" id="time" required hidden>
+              <option value="">Select</option>
+            </select>
           </div>
         </div>
 
         <label>Notes</label>
-        <textarea name="notes"></textarea>
+        <textarea name="notes" placeholder="Allergies, birthday message, pram/high chair..."></textarea>
 
-        <button class="btn" id="btn">Request a booking</button>
+        <button class="btn" id="btn" type="submit">Request a booking</button>
 
-        <div class="toast ok" id="ok">Submitted!</div>
+        <div class="toast ok" id="ok">Submitted! We’ll confirm shortly.</div>
         <div class="toast bad" id="bad"></div>
       </form>
 
@@ -293,22 +273,30 @@
   </div>
 
 <script>
-  const SCRIPT_URL = "替换成你的AppsScriptURL";
+  // ✅ 1) 改成你真实的 Apps Script Web App URL（必须以 /exec 结尾）
+  const SCRIPT_URL = "https://script.google.com/macros/s/XXXXXXXXXXXX/exec";
 
+  // ✅ 可预约时间：10:00–18:00（10am–6pm）
   const OPEN_HOURS = { start: "10:00", end: "18:00" };
   const SLOT_MINUTES = 30;
 
-  const form = document.getElementById("form");
-  const dateEl = document.getElementById("date");
-  const timeEl = document.getElementById("time");
-  const timeGrid = document.getElementById("timeGrid");
+  const $ = (id) => document.getElementById(id);
+  const form = $("form");
+  const iframe = $("hidden_iframe");
+  const dateEl = $("date");
+  const timeEl = $("time");
+  const timeGrid = $("timeGrid");
+  const btn = $("btn");
+  const ok = $("ok");
+  const bad = $("bad");
+  const guestsEl = $("guests");
 
   form.action = SCRIPT_URL;
 
   function localYMD(d = new Date()){
     const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const day = String(d.getDate()).padStart(2,"0");
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   }
 
@@ -321,62 +309,147 @@
     }
   }
 
-  dateEl.addEventListener("input", ()=>{
-    clampPastDate();
-    refreshTimes();
-  });
-
-  dateEl.addEventListener("change", ()=>{
-    clampPastDate();
-    refreshTimes();
-  });
-
   function toMinutes(t){
     const [h,m] = t.split(":").map(Number);
     return h*60 + m;
   }
-
   function toHHMM(min){
-    return String(Math.floor(min/60)).padStart(2,"0")+":"+String(min%60).padStart(2,"0");
+    const h = String(Math.floor(min/60)).padStart(2,"0");
+    const m = String(min%60).padStart(2,"0");
+    return `${h}:${m}`;
   }
-
   function buildSlots(){
-    const slots=[];
-    let s=toMinutes(OPEN_HOURS.start);
-    const e=toMinutes(OPEN_HOURS.end);
-    while(s<=e){ slots.push(toHHMM(s)); s+=SLOT_MINUTES;}
+    const slots = [];
+    let s = toMinutes(OPEN_HOURS.start);
+    const e = toMinutes(OPEN_HOURS.end);
+    while (s <= e){
+      slots.push(toHHMM(s));
+      s += SLOT_MINUTES;
+    }
     return slots;
   }
 
-  function refreshTimes(){
-    const d=dateEl.value;
-    if(!d)return;
+  function show(el, msg){
+    ok.style.display = "none";
+    bad.style.display = "none";
+    if (msg) el.textContent = msg;
+    el.style.display = "block";
+  }
 
-    const now=new Date();
-    const nowMin=now.getHours()*60+now.getMinutes();
-    const today=localYMD();
-
-    timeGrid.innerHTML="";
-    timeEl.innerHTML="";
-
-    buildSlots().forEach(s=>{
-      const b=document.createElement("button");
-      b.className="time-btn";
-      b.textContent=s;
-      const min=toMinutes(s);
-
-      if(d===today && min<nowMin){
-        b.classList.add("disabled");
-      }else{
-        b.onclick=()=>{
-          timeEl.value=s;
-          document.querySelectorAll(".time-btn").forEach(x=>x.classList.remove("selected"));
-          b.classList.add("selected");
-        };
-      }
-      timeGrid.appendChild(b);
+  function selectTime(value){
+    timeEl.value = value;
+    timeGrid.querySelectorAll(".time-btn").forEach(b=>{
+      b.classList.toggle("selected", b.dataset.value === value);
     });
   }
+
+  function refreshTimes(){
+    const d = dateEl.value;
+    if (!d) return;
+
+    const now = new Date();
+    const nowMinutes = now.getHours()*60 + now.getMinutes();
+    const today = localYMD(now);
+
+    timeGrid.innerHTML = "";
+    timeEl.innerHTML = "";
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "Select";
+    timeEl.appendChild(first);
+
+    for (const s of buildSlots()){
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      timeEl.appendChild(opt);
+
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "time-btn";
+      b.textContent = s;
+      b.dataset.value = s;
+
+      const slotMinutes = toMinutes(s);
+      const disable = (d === today) && (slotMinutes < nowMinutes);
+
+      if (disable){
+        b.classList.add("disabled");
+        b.setAttribute("aria-disabled","true");
+      } else {
+        b.addEventListener("click", ()=> selectTime(s));
+      }
+
+      timeGrid.appendChild(b);
+    }
+
+    selectTime(""); // 重置
+  }
+
+  // ✅ iPhone 兜底：输入/选择后都强制不允许过去日期
+  dateEl.addEventListener("input", () => {
+    clampPastDate();
+    refreshTimes();
+  });
+  dateEl.addEventListener("change", () => {
+    clampPastDate();
+    refreshTimes();
+  });
+
+  guestsEl.addEventListener("change", () => {
+    if (guestsEl.value === "8+") {
+      alert("For 8+ guests, please contact us to confirm availability.");
+    }
+  });
+
+  // ✅ 提交：走 iframe，稳定写入 Sheet；iframe load 作为“已提交”信号
+  let pendingSubmit = false;
+
+  form.addEventListener("submit", (e) => {
+    // 关键：必须有时间
+    if (!timeEl.value) {
+      e.preventDefault();
+      show(bad, "Please select a time.");
+      return;
+    }
+
+    // 关键：SCRIPT_URL 没换会直接拦住
+    if (!SCRIPT_URL.includes("script.google.com/macros/s/") || !SCRIPT_URL.endsWith("/exec")) {
+      e.preventDefault();
+      show(bad, "SCRIPT_URL is not set. Please paste your Apps Script /exec URL.");
+      return;
+    }
+
+    ok.style.display = "none";
+    bad.style.display = "none";
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+    pendingSubmit = true;
+
+    // 超时兜底（避免一直转）
+    setTimeout(() => {
+      if (!pendingSubmit) return;
+      pendingSubmit = false;
+      btn.disabled = false;
+      btn.textContent = "Request a booking";
+      show(bad, "Submitted, but no confirmation returned. Please check your Sheet or Apps Script deployment.");
+    }, 12000);
+  });
+
+  iframe.addEventListener("load", () => {
+    if (!pendingSubmit) return;
+    pendingSubmit = false;
+
+    btn.disabled = false;
+    btn.textContent = "Request a booking";
+    show(ok, "Submitted! We’ll confirm shortly.");
+
+    form.reset();
+    refreshTimes();
+  });
+
+  // 初始化：如果今天就显示时间按钮
+  refreshTimes();
 </script>
 
 </body>
