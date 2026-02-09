@@ -21,7 +21,7 @@
 
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       min-height: 100vh;
       color: var(--text);
       background: linear-gradient(rgba(13,55,40,.76), rgba(13,55,40,.90));
@@ -293,23 +293,43 @@
   </div>
 
 <script>
-  const SCRIPT_URL = "你的AppsScriptURL";
+  const SCRIPT_URL = "替换成你的AppsScriptURL";
 
   const OPEN_HOURS = { start: "10:00", end: "18:00" };
   const SLOT_MINUTES = 30;
 
+  const form = document.getElementById("form");
   const dateEl = document.getElementById("date");
   const timeEl = document.getElementById("time");
   const timeGrid = document.getElementById("timeGrid");
 
-  function todayYMD(){
-    const t = new Date();
-    return t.toISOString().split("T")[0];
+  form.action = SCRIPT_URL;
+
+  function localYMD(d = new Date()){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
   }
 
-  dateEl.min = todayYMD();
+  const minDate = localYMD();
+  dateEl.setAttribute("min", minDate);
 
-  dateEl.addEventListener("change", refreshTimes);
+  function clampPastDate(){
+    if (dateEl.value && dateEl.value < minDate) {
+      dateEl.value = minDate;
+    }
+  }
+
+  dateEl.addEventListener("input", ()=>{
+    clampPastDate();
+    refreshTimes();
+  });
+
+  dateEl.addEventListener("change", ()=>{
+    clampPastDate();
+    refreshTimes();
+  });
 
   function toMinutes(t){
     const [h,m] = t.split(":").map(Number);
@@ -334,7 +354,7 @@
 
     const now=new Date();
     const nowMin=now.getHours()*60+now.getMinutes();
-    const today=todayYMD();
+    const today=localYMD();
 
     timeGrid.innerHTML="";
     timeEl.innerHTML="";
