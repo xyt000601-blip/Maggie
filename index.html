@@ -7,12 +7,23 @@
 
   <style>
     :root{
+      --green:#0f3d2e;
       --gold:#c9a86a;
       --gold2:#b89655;
       --muted:#5c6b63;
       --card: rgba(255,255,255,.92);
       --stroke: rgba(201,168,106,.22);
       --shadow: 0 60px 140px rgba(0,0,0,.35);
+      --ink:#16221c;
+
+      --cal-bg: rgba(255,255,255,.92);
+      --cal-border: rgba(201,168,106,.30);
+      --cal-soft: rgba(15,61,46,.06);
+      --cal-disabled: rgba(22,34,28,.28);
+      --cal-disabled-bg: rgba(0,0,0,.03);
+      --cal-hover: rgba(201,168,106,.14);
+      --cal-selected: rgba(201,168,106,.22);
+      --cal-selected-border: rgba(201,168,106,.75);
     }
 
     *{ box-sizing:border-box; }
@@ -22,7 +33,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       min-height: 100vh;
       background: linear-gradient(rgba(13,55,40,.76), rgba(13,55,40,.90));
-      color:#16221c;
+      color: var(--ink);
     }
 
     body::before{
@@ -181,6 +192,151 @@
     }
     .time-btn.disabled{ opacity:.45; cursor:not-allowed; }
 
+    /* ===== Custom calendar (Deep green + Gold) ===== */
+    .date-box{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.08);
+      background:#fff;
+      font-size: 15px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .date-box .value{
+      color: rgba(22,34,28,.92);
+      font-weight: 750;
+    }
+    .date-box .placeholder{
+      color: rgba(22,34,28,.45);
+      font-weight: 650;
+    }
+    .date-box .chip{
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(120,86,30,.95);
+      background: rgba(201,168,106,.16);
+      border: 1px solid rgba(201,168,106,.35);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .calendar{
+      margin-top: 10px;
+      border-radius: 18px;
+      background: var(--cal-bg);
+      border: 1px solid var(--cal-border);
+      overflow:hidden;
+    }
+
+    .cal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 12px;
+      background:
+        linear-gradient(180deg, rgba(15,61,46,.10), rgba(15,61,46,.04));
+      border-bottom: 1px solid rgba(201,168,106,.25);
+    }
+
+    .cal-title{
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: rgba(15,61,46,.92);
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .cal-nav{
+      display:flex;
+      gap:8px;
+    }
+
+    .cal-nav button{
+      border: 1px solid rgba(201,168,106,.35);
+      background: rgba(201,168,106,.14);
+      color: rgba(120,86,30,.95);
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 12px;
+    }
+    .cal-nav button:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
+    .cal-week{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      padding: 10px 12px 8px;
+      gap:8px;
+      background: rgba(255,255,255,.65);
+      border-bottom: 1px solid rgba(0,0,0,.04);
+    }
+    .cal-week div{
+      text-align:center;
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(15,61,46,.65);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .cal-grid{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+      padding: 12px;
+      background: rgba(255,255,255,.75);
+    }
+
+    .day{
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.06);
+      background: #fff;
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(22,34,28,.92);
+      cursor:pointer;
+      transition:.12s;
+    }
+    .day:hover{
+      background: var(--cal-hover);
+      border-color: rgba(201,168,106,.35);
+      transform: translateY(-1px);
+    }
+    .day.muted{
+      color: rgba(22,34,28,.35);
+      background: rgba(0,0,0,.02);
+      border-color: rgba(0,0,0,.04);
+      cursor: default;
+    }
+    .day.disabled{
+      color: var(--cal-disabled);
+      background: var(--cal-disabled-bg);
+      border-color: rgba(0,0,0,.05);
+      cursor:not-allowed;
+    }
+    .day.selected{
+      background: var(--cal-selected);
+      border-color: var(--cal-selected-border);
+      box-shadow: 0 0 0 4px rgba(201,168,106,.18);
+    }
+
+    .sr-only{
+      position:absolute !important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+
     @media(max-width:720px){
       .grid{ grid-template-columns:1fr; }
       .time-grid{ grid-template-columns: repeat(3, 1fr); }
@@ -244,13 +400,24 @@
         <div class="grid">
           <div>
             <label>Date</label>
-            <input name="date" id="date" type="date" required />
+
+            <!-- ✅ 自定义日历显示 -->
+            <div class="date-box" id="dateBox" role="button" tabindex="0" aria-label="Choose date">
+              <div id="dateText" class="placeholder">Select a date</div>
+              <div id="dateRuleChip" class="chip"></div>
+            </div>
+
+            <div class="calendar" id="calendar" aria-live="polite"></div>
+
+            <!-- ✅ 真正提交用的隐藏 input（保持 name="date" 不变） -->
+            <input class="sr-only" name="date" id="date" required aria-hidden="true" />
           </div>
 
           <div>
             <label>Time</label>
             <div id="timeGrid" class="time-grid"></div>
 
+            <!-- hidden select：给表单提交用 -->
             <select name="time" id="time" required hidden>
               <option value="">Select</option>
             </select>
@@ -271,18 +438,29 @@
   </div>
 
 <script>
+  // ✅ Apps Script Web App URL（必须以 /exec 结尾）
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
-  // 可预约时间：10:00–18:00（10am–6pm）
+  // ✅ 可预约时间：10:00–18:00（10am–6pm）
   const OPEN_HOURS = { start: "10:00", end: "18:00" };
   const SLOT_MINUTES = 30;
 
   const $ = (id) => document.getElementById(id);
   const form = $("form");
   const iframe = $("hidden_iframe");
-  const dateEl = $("date");
+
+  // date
+  const dateBox = $("dateBox");
+  const dateText = $("dateText");
+  const dateRuleChip = $("dateRuleChip");
+  const calWrap = $("calendar");
+  const dateEl = $("date"); // hidden input
+
+  // time
   const timeEl = $("time");
   const timeGrid = $("timeGrid");
+
+  // ui
   const btn = $("btn");
   const ok = $("ok");
   const bad = $("bad");
@@ -297,41 +475,61 @@
     return `${y}-${m}-${day}`;
   }
 
-  // ✅ 3pm 规则：3pm 前最早明天；3pm 后最早后天
-  function getEarliestBookableYMD(){
-    const now = new Date();
-    const cutoffMinutes = 15 * 60; // 3:00pm
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  function parseYMD(ymd){
+    const [y,m,d] = ymd.split("-").map(Number);
+    return new Date(y, m-1, d, 0,0,0,0);
+  }
 
+  function formatPretty(ymd){
+    const d = parseYMD(ymd);
+    const opts = { weekday:"short", year:"numeric", month:"short", day:"numeric" };
+    return d.toLocaleDateString("en-NZ", opts);
+  }
+
+  // ✅ 3pm 规则：3pm 前最早明天；3pm 后最早后天（含 3:00pm）
+  function getEarliestBookableDate(){
+    const now = new Date();
+    const cutoffMinutes = 15 * 60;
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
     const daysToAdd = (nowMinutes < cutoffMinutes) ? 1 : 2;
 
     const earliest = new Date(now);
     earliest.setHours(0,0,0,0);
     earliest.setDate(earliest.getDate() + daysToAdd);
-
-    return localYMD(earliest);
+    return earliest;
   }
 
-  function applyMinDateRule(){
-    const minDate = getEarliestBookableYMD();
-    dateEl.setAttribute("min", minDate);
+  function getEarliestBookableYMD(){
+    return localYMD(getEarliestBookableDate());
+  }
 
-    // iPhone 兜底：就算 UI 让你点了更早日期，也立刻纠正
-    if (dateEl.value && dateEl.value < minDate) {
-      dateEl.value = minDate;
-    }
-    return minDate;
+  function updateRuleChip(){
+    const now = new Date();
+    const cutoffMinutes = 15 * 60;
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    dateRuleChip.textContent = (nowMinutes < cutoffMinutes)
+      ? "Before 3pm: earliest is tomorrow"
+      : "After 3pm: earliest is the day after tomorrow";
+  }
+
+  function show(el, msg){
+    ok.style.display = "none";
+    bad.style.display = "none";
+    if (msg) el.textContent = msg;
+    el.style.display = "block";
   }
 
   function toMinutes(t){
     const [h,m] = t.split(":").map(Number);
     return h*60 + m;
   }
+
   function toHHMM(min){
     const h = String(Math.floor(min/60)).padStart(2,"0");
     const m = String(min%60).padStart(2,"0");
     return `${h}:${m}`;
   }
+
   function buildSlots(){
     const slots = [];
     let s = toMinutes(OPEN_HOURS.start);
@@ -341,13 +539,6 @@
       s += SLOT_MINUTES;
     }
     return slots;
-  }
-
-  function show(el, msg){
-    ok.style.display = "none";
-    bad.style.display = "none";
-    if (msg) el.textContent = msg;
-    el.style.display = "block";
   }
 
   function selectTime(value){
@@ -400,14 +591,203 @@
     selectTime("");
   }
 
-  // ✅ 日期：每次操作都应用 3pm 规则 + 刷新时间按钮
-  dateEl.addEventListener("input", () => {
-    applyMinDateRule();
-    refreshTimes();
+  // ===== Calendar rendering =====
+  const WEEKDAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  let viewYear = new Date().getFullYear();
+  let viewMonth = new Date().getMonth(); // 0-11
+
+  function startOfMonth(y, m){
+    return new Date(y, m, 1, 0,0,0,0);
+  }
+  function daysInMonth(y, m){
+    return new Date(y, m+1, 0).getDate();
+  }
+
+  // Monday=0..Sunday=6
+  function weekdayMon0(d){
+    const js = d.getDay(); // Sun=0..Sat=6
+    return (js + 6) % 7;
+  }
+
+  function ymdFromParts(y,m,d){
+    const mm = String(m+1).padStart(2,"0");
+    const dd = String(d).padStart(2,"0");
+    return `${y}-${mm}-${dd}`;
+  }
+
+  function canSelectDate(ymd){
+    const earliest = getEarliestBookableYMD();
+    return ymd >= earliest;
+  }
+
+  function renderCalendar(){
+    updateRuleChip();
+
+    const earliestDate = getEarliestBookableDate();
+    const earliestY = earliestDate.getFullYear();
+    const earliestM = earliestDate.getMonth();
+
+    // prevent viewing month earlier than earliest month
+    if (viewYear < earliestY || (viewYear === earliestY && viewMonth < earliestM)) {
+      viewYear = earliestY;
+      viewMonth = earliestM;
+    }
+
+    const first = startOfMonth(viewYear, viewMonth);
+    const leading = weekdayMon0(first);
+    const dim = daysInMonth(viewYear, viewMonth);
+
+    const prevMonthDate = new Date(viewYear, viewMonth, 0);
+    const prevDim = prevMonthDate.getDate();
+    const prevY = prevMonthDate.getFullYear();
+    const prevM = prevMonthDate.getMonth();
+
+    const head = document.createElement("div");
+    head.className = "cal-head";
+
+    const title = document.createElement("div");
+    title.className = "cal-title";
+    title.textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+
+    const nav = document.createElement("div");
+    nav.className = "cal-nav";
+
+    const btnPrev = document.createElement("button");
+    btnPrev.type = "button";
+    btnPrev.textContent = "←";
+    btnPrev.setAttribute("aria-label", "Previous month");
+
+    const btnNext = document.createElement("button");
+    btnNext.type = "button";
+    btnNext.textContent = "→";
+    btnNext.setAttribute("aria-label", "Next month");
+
+    const prevWouldBeEarlier =
+      (viewYear < earliestY) ||
+      (viewYear === earliestY && viewMonth <= earliestM);
+    btnPrev.disabled = prevWouldBeEarlier;
+
+    btnPrev.addEventListener("click", () => {
+      if (btnPrev.disabled) return;
+      viewMonth -= 1;
+      if (viewMonth < 0){ viewMonth = 11; viewYear -= 1; }
+      renderCalendar();
+    });
+
+    btnNext.addEventListener("click", () => {
+      viewMonth += 1;
+      if (viewMonth > 11){ viewMonth = 0; viewYear += 1; }
+      renderCalendar();
+    });
+
+    nav.appendChild(btnPrev);
+    nav.appendChild(btnNext);
+    head.appendChild(title);
+    head.appendChild(nav);
+
+    const week = document.createElement("div");
+    week.className = "cal-week";
+    WEEKDAYS.forEach(w=>{
+      const el = document.createElement("div");
+      el.textContent = w;
+      week.appendChild(el);
+    });
+
+    const grid = document.createElement("div");
+    grid.className = "cal-grid";
+
+    // 42 cells (6 weeks)
+    for (let i=0; i<42; i++){
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "day";
+
+      let y=viewYear, m=viewMonth, dayNum=0;
+      let isCurrent = true;
+
+      if (i < leading){
+        // prev month
+        isCurrent = false;
+        y = prevY; m = prevM;
+        dayNum = prevDim - (leading - 1 - i);
+        cell.classList.add("muted");
+      } else if (i >= leading + dim){
+        // next month
+        isCurrent = false;
+        const next = new Date(viewYear, viewMonth+1, 1);
+        y = next.getFullYear(); m = next.getMonth();
+        dayNum = (i - (leading + dim)) + 1;
+        cell.classList.add("muted");
+      } else {
+        dayNum = (i - leading) + 1;
+      }
+
+      cell.textContent = String(dayNum);
+
+      const ymd = ymdFromParts(y,m,dayNum);
+
+      // only allow selection for current-month visible days? (你也可以允许跨月点，但这里更高级：跨月灰色不可点)
+      if (!isCurrent) {
+        cell.classList.add("disabled");
+        cell.disabled = true;
+      } else {
+        if (!canSelectDate(ymd)) {
+          cell.classList.add("disabled");
+          cell.disabled = true;
+        } else {
+          cell.addEventListener("click", () => {
+            dateEl.value = ymd;
+            dateText.className = "value";
+            dateText.textContent = formatPretty(ymd);
+
+            // highlight selected
+            grid.querySelectorAll(".day").forEach(d=>{
+              d.classList.toggle("selected", d.dataset?.ymd === ymd);
+            });
+
+            refreshTimes();
+          });
+        }
+      }
+
+      cell.dataset.ymd = ymd;
+
+      // selected state
+      if (dateEl.value && dateEl.value === ymd) {
+        cell.classList.add("selected");
+      }
+
+      grid.appendChild(cell);
+    }
+
+    calWrap.innerHTML = "";
+    calWrap.appendChild(head);
+    calWrap.appendChild(week);
+    calWrap.appendChild(grid);
+
+    // If current selected date became invalid due to 3pm cutoff, clamp to earliest
+    const earliest = getEarliestBookableYMD();
+    if (dateEl.value && dateEl.value < earliest) {
+      dateEl.value = earliest;
+      dateText.className = "value";
+      dateText.textContent = formatPretty(earliest);
+      refreshTimes();
+      // re-render to highlight
+      setTimeout(renderCalendar, 0);
+    }
+  }
+
+  // focus/tap behavior (optional): scroll calendar into view
+  dateBox.addEventListener("click", () => {
+    calWrap.scrollIntoView({ behavior:"smooth", block:"nearest" });
   });
-  dateEl.addEventListener("change", () => {
-    applyMinDateRule();
-    refreshTimes();
+  dateBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      calWrap.scrollIntoView({ behavior:"smooth", block:"nearest" });
+    }
   });
 
   guestsEl.addEventListener("change", () => {
@@ -416,16 +796,20 @@
     }
   });
 
-  // 提交：走 iframe
+  // Submit: iframe
   let pendingSubmit = false;
 
   form.addEventListener("submit", (e) => {
+    if (!dateEl.value) {
+      e.preventDefault();
+      show(bad, "Please select a date.");
+      return;
+    }
     if (!timeEl.value) {
       e.preventDefault();
       show(bad, "Please select a time.");
       return;
     }
-
     if (!SCRIPT_URL.includes("script.google.com/macros/s/") || !SCRIPT_URL.endsWith("/exec")) {
       e.preventDefault();
       show(bad, "SCRIPT_URL is not set. Please paste your Apps Script /exec URL.");
@@ -456,12 +840,17 @@
     show(ok, "Submitted! We’ll confirm shortly.");
 
     form.reset();
-    refreshTimes();
+    dateEl.value = "";
+    dateText.className = "placeholder";
+    dateText.textContent = "Select a date";
+    timeGrid.innerHTML = "";
+    timeEl.innerHTML = '<option value="">Select</option>';
+    renderCalendar();
   });
 
-  // ✅ 初始化：加载时立刻应用 3pm 规则
-  applyMinDateRule();
-  refreshTimes();
+  // Init
+  updateRuleChip();
+  renderCalendar();
 </script>
 
 </body>
