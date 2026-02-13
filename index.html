@@ -341,6 +341,78 @@
       .grid{ grid-template-columns:1fr; }
       .time-grid{ grid-template-columns: repeat(3, 1fr); }
     }
+/* ===== Mobile calendar fit (fix overflow) ===== */
+.calendar{ width: 100%; max-width: 100%; }
+.cal-head, .cal-week, .cal-grid{ width: 100%; }
+
+.cal-grid{
+  /* 关键：避免因为 gap + padding 导致溢出 */
+  padding: 10px;
+  gap: 8px;
+}
+
+.day{
+  /* 关键：让按钮不会撑破格子 */
+  width: 100%;
+  min-width: 0;
+}
+
+/* 手机端：更紧凑的“高级日历” */
+@media (max-width: 720px){
+  .wrap{ margin: 28px auto; padding-bottom: 44px; }
+  .card{ padding: 20px; border-radius: 22px; }
+
+  /* 日历整体不要“浮出来”，保持跟输入框同宽 */
+  .calendar{
+    border-radius: 18px;
+  }
+
+  /* 让周标题和格子更紧凑 */
+  .cal-week{
+    padding: 8px 10px 6px;
+    gap: 6px;
+  }
+  .cal-week div{
+    font-size: 10px;
+    letter-spacing: .06em;
+  }
+
+  .cal-grid{
+    padding: 10px;
+    gap: 6px;
+  }
+
+  /* 每个日期按钮更小一点，保证不超出 */
+  .day{
+    height: 38px;           /* 原来 42 */
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  /* 头部更紧凑，左右按钮不占宽度 */
+  .cal-head{
+    padding: 10px 10px;
+  }
+  .cal-title{
+    font-size: 11px;
+    letter-spacing: .08em;
+  }
+  .cal-nav button{
+    padding: 6px 9px;
+    border-radius: 12px;
+  }
+
+  /* 日期输入条的规则 chip 过长时自动换行，不撑破 */
+  .date-box{
+    align-items: flex-start;
+  }
+  .date-box .chip{
+    max-width: 58%;
+    white-space: normal;
+    line-height: 1.2;
+  }
+}
+
   </style>
 </head>
 
