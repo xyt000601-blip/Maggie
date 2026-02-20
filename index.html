@@ -384,6 +384,124 @@
       color: rgba(15,61,46,.55);
     }
 
+    /* ===== Modal (DIY Info) ===== */
+    .modal{
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 50;
+    }
+    .modal.open{ display:block; }
+
+    .modal-backdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-card{
+      position: relative;
+      width: min(880px, calc(100% - 24px));
+      margin: 40px auto;
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(201,168,106,.25);
+      border-radius: 22px;
+      box-shadow: 0 30px 120px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+
+    .modal-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      background: linear-gradient(180deg, rgba(201,168,106,.10), rgba(255,255,255,.0));
+    }
+
+    .modal-kicker{
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: rgba(15,61,46,.70);
+      font-weight: 900;
+    }
+
+    .modal-title{
+      margin: 6px 0 0;
+      font-size: 22px;
+      color: #0f3d2e;
+      letter-spacing: .02em;
+    }
+
+    .modal-x{
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .modal-body{
+      padding: 16px 18px 18px;
+    }
+
+    .bilingual-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .bilingual-grid .col{
+      background: rgba(15,61,46,.045);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+    }
+
+    .bilingual-grid h4{
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(15,61,46,.85);
+    }
+
+    .bilingual-grid ul{
+      margin: 0;
+      padding-left: 18px;
+      color: rgba(22,34,28,.92);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .bilingual-grid .zh h4{
+      letter-spacing: .02em;
+      text-transform:none;
+    }
+
+    .modal-note{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(201,168,106,.35);
+      background: rgba(201,168,106,.10);
+      color: rgba(120,86,30,.95);
+      font-weight: 650;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .zh-note{
+      display:block;
+      margin-top: 6px;
+      color: rgba(120,86,30,.92);
+      font-weight: 650;
+    }
+
     @media(max-width:820px){
       .landing-grid{ grid-template-columns: 1fr; }
       .tile{ min-height: unset; }
@@ -395,6 +513,8 @@
       .wrap{ margin: 26px auto; }
       .card{ padding: 22px; }
       .brand{ font-size: 26px; }
+      .bilingual-grid{ grid-template-columns: 1fr; }
+      .modal-card{ margin: 16px auto; }
     }
   </style>
 </head>
@@ -405,7 +525,7 @@
 
       <div class="brand">MAGGIE BAKERY</div>
       <div class="location">Albany • Auckland</div>
-      <p class="sub">Choose a booking type below.</p>
+      <p class="sub" id="pageSub">Choose a booking type below.</p>
 
       <!-- Shared info bar (menu-like) -->
       <div class="info">
@@ -429,7 +549,7 @@
         <div class="landing-grid">
           <!-- DIY card -->
           <article class="tile">
-            <div class="hero" style="background-image:url('images/diy.jpg');background-position: 60% 70%;"></div>
+            <div class="hero" style="background-image:url('images/diy.jpg');"></div>
             <div class="tile-body">
               <div class="kicker">ON-SITE ACTIVITY</div>
               <h2 class="tile-title">DIY Cake Workshop</h2>
@@ -437,15 +557,15 @@
                 Join our on-site DIY cake experience. Choose your date and time, and we’ll confirm your spot shortly.
               </p>
               <div class="tile-actions">
-                <button class="btn primary" id="goDIY">Book DIY</button>
-                <button class="btn ghost" type="button" onclick="alert('Info: Please call us if you have questions.')">Info</button>
+                <button class="btn primary" id="goDIY" type="button">Book DIY</button>
+                <button class="btn ghost" type="button" id="openDIYInfo">Info</button>
               </div>
             </div>
           </article>
 
           <!-- Buffet card -->
           <article class="tile">
-            <div class="hero" style="background-image:url('images/buffet.jpg');background-position: 70% 80%;"></div>
+            <div class="hero" style="background-image:url('images/buffet.jpg');"></div>
             <div class="tile-body">
               <div class="kicker">DINING</div>
               <h2 class="tile-title">Buffet</h2>
@@ -536,6 +656,71 @@
     </div>
   </div>
 
+  <!-- ===== DIY INFO MODAL ===== -->
+  <div class="modal" id="diyInfoModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="1"></div>
+
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div>
+          <div class="modal-kicker">DIY OIL-PAINTING CAKE EXPERIENCE</div>
+          <h3 class="modal-title" id="modalTitle">Workshop Details</h3>
+        </div>
+
+        <button class="modal-x" type="button" aria-label="Close" data-close="1">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="bilingual-grid">
+          <!-- Left: English -->
+          <div class="col">
+            <h4>What’s Included</h4>
+            <ul>
+              <li>1 fresh mini square cream cake</li>
+              <li>Cream “painting” materials</li>
+              <li>1 drink of your choice</li>
+              <li>2-hour creative session</li>
+              <li>Light on-site guidance (mostly free creation)</li>
+              <li>Enjoy in-store or take away</li>
+            </ul>
+
+            <h4 style="margin-top:16px;">Pricing</h4>
+            <ul>
+              <li><strong>Solo</strong> — $58 (includes 1 drink)</li>
+              <li><strong>Two people</strong> — $100 (includes 2 drinks)</li>
+              <li><strong>3+ people</strong> — $50 per person</li>
+            </ul>
+          </div>
+
+          <!-- Right: Chinese -->
+          <div class="col zh">
+            <h4>内容包含</h4>
+            <ul>
+              <li>1份新鲜小方形奶油蛋糕</li>
+              <li>1份奶油霜绘画材料</li>
+              <li>1杯任意口味饮品</li>
+              <li>2小时创作体验</li>
+              <li>现场简单指导（自由创作为主）</li>
+              <li>成品可堂食或带走</li>
+            </ul>
+
+            <h4 style="margin-top:16px;">价格</h4>
+            <ul>
+              <li><strong>单人</strong> — $58（赠送1杯饮品）</li>
+              <li><strong>双人</strong> — $100（赠送2杯饮品）</li>
+              <li><strong>双人以上</strong> — $50/人</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-note">
+          Tip: If you have allergies or special requests, please add them in Notes when booking.
+          <span class="zh-note">小提示：如有过敏或特殊需求，请在预约 Notes 中备注。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script>
   /* =========================
      CONFIG
@@ -555,6 +740,8 @@
   ========================== */
   const homeView = document.getElementById("homeView");
   const diyView = document.getElementById("diyView");
+  const pageSub = document.getElementById("pageSub");
+
   const goDIY = document.getElementById("goDIY");
   const backHome = document.getElementById("backHome");
 
@@ -563,9 +750,21 @@
     const isDIY = h === "#diy";
     homeView.classList.toggle("active", !isDIY);
     diyView.classList.toggle("active", isDIY);
-    document.querySelector(".sub").textContent = isDIY
+
+    pageSub.textContent = isDIY
       ? "Submit a request and we’ll confirm your booking shortly."
       : "Choose a booking type below.";
+
+    // entering DIY: refresh date rules
+    if (isDIY) {
+      refreshMinDate();
+      clampDateToMin();
+      if (!dateEl.value) {
+        // default to minDate so user doesn't have to open date picker immediately
+        dateEl.value = minDate;
+      }
+      refreshTimes();
+    }
   }
 
   goDIY.addEventListener("click", () => {
@@ -633,11 +832,9 @@
     }
   }
 
-  // 每次打开 DIY 页时更新 min（避免跨天或跨 3pm 之后规则没刷新）
   function refreshMinDate(){
     minDate = calcMinDateBy3pmRule();
     dateEl.setAttribute("min", minDate);
-    clampDateToMin();
   }
 
   /* =========================
@@ -729,7 +926,7 @@
     "Oreo",
     "Chestnut",
     "Taro",
-    "Coconut Milk Jelly"
+    "Coconut Panna Cotta"
   ];
 
   const flavourState = Object.fromEntries(flavours.map(f => [f, 0]));
@@ -913,15 +1110,45 @@
   });
 
   /* =========================
+     DIY INFO MODAL
+  ========================== */
+  const openDIYInfo = document.getElementById("openDIYInfo");
+  const diyInfoModal = document.getElementById("diyInfoModal");
+
+  function openModal(){
+    diyInfoModal.classList.add("open");
+    diyInfoModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(){
+    diyInfoModal.classList.remove("open");
+    diyInfoModal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  openDIYInfo?.addEventListener("click", openModal);
+
+  diyInfoModal?.addEventListener("click", (e) => {
+    const t = e.target;
+    if (t && t.getAttribute && t.getAttribute("data-close") === "1") closeModal();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && diyInfoModal.classList.contains("open")) closeModal();
+  });
+
+  /* =========================
      INIT
   ========================== */
   syncFlavoursField();
   renderFlavours();
+
   refreshMinDate();
+  // Optional: default date to minDate on first load (helps UX if user goes straight to DIY)
+  // dateEl.value = minDate;
+
   refreshTimes();
 </script>
 
 </body>
 </html>
-
-
