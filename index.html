@@ -177,7 +177,7 @@
     .hero{
       width:100%;
       aspect-ratio: 16/10;
-      background:#ddd 50% 60%/cover no-repeat; /* ✅ image content a bit lower */
+      background:#ddd 50% 60%/cover no-repeat; /* image content slightly lower */
     }
 
     .tile-body{
@@ -404,11 +404,17 @@
       position: relative;
       width: min(880px, calc(100% - 24px));
       margin: 40px auto;
+
       background: rgba(255,255,255,.96);
       border: 1px solid rgba(201,168,106,.25);
       border-radius: 22px;
       box-shadow: 0 30px 120px rgba(0,0,0,.35);
       overflow: hidden;
+
+      /* ✅ key: make modal fit screen and allow internal scroll */
+      max-height: calc(100dvh - 24px);
+      display: flex;
+      flex-direction: column;
     }
 
     .modal-head{
@@ -419,6 +425,7 @@
       padding: 18px 18px 14px;
       border-bottom: 1px solid rgba(0,0,0,.06);
       background: linear-gradient(180deg, rgba(201,168,106,.10), rgba(255,255,255,.0));
+      flex: 0 0 auto;
     }
 
     .modal-kicker{
@@ -444,10 +451,16 @@
       background: #fff;
       cursor: pointer;
       font-weight: 900;
+      flex: 0 0 auto;
     }
 
     .modal-body{
       padding: 16px 18px 18px;
+
+      /* ✅ key: scroll inside modal on iPhone */
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1 1 auto;
     }
 
     .bilingual-grid{
@@ -514,7 +527,7 @@
       .card{ padding: 22px; }
       .brand{ font-size: 26px; }
       .bilingual-grid{ grid-template-columns: 1fr; }
-      .modal-card{ margin: 16px auto; }
+      .modal-card{ margin: 12px auto; }
     }
   </style>
 </head>
@@ -527,18 +540,19 @@
       <div class="location">Albany • Auckland</div>
       <p class="sub" id="pageSub">Choose a booking type below.</p>
 
-      <!-- Shared info bar (menu-like) -->
       <div class="info">
         <div class="pill has-call">
           <span>Open 10am – 7pm</span>
           <a class="call" href="tel:+64223189478">Call</a>
         </div>
+
         <div class="pill">
           <a target="_blank" rel="noopener"
              href="https://www.google.com/maps/search/?api=1&query=1%2F200%20Dairy%20Flat%20Highway">
             1/200 Dairy Flat Highway
           </a>
         </div>
+
         <div class="pill gold">
           <span>Request only · Confirmation required</span>
         </div>
@@ -634,7 +648,6 @@
               <label>Time</label>
               <div id="timeGrid" class="time-grid"></div>
 
-              <!-- hidden select: for form submit -->
               <select name="time" id="time" required hidden>
                 <option value="">Select</option>
               </select>
@@ -672,7 +685,6 @@
 
       <div class="modal-body">
         <div class="bilingual-grid">
-          <!-- Left: English -->
           <div class="col">
             <h4>What’s Included</h4>
             <ul>
@@ -692,7 +704,6 @@
             </ul>
           </div>
 
-          <!-- Right: Chinese -->
           <div class="col zh">
             <h4>内容包含</h4>
             <ul>
@@ -725,18 +736,15 @@
   /* =========================
      CONFIG
   ========================== */
-  // ✅ 改成你真实的 Apps Script Web App URL（必须以 /exec 结尾）
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
-  // ✅ 可预约时间：10:00–18:00（10am–6pm），含 18:00
   const OPEN_HOURS = { start: "10:00", end: "18:00" };
   const SLOT_MINUTES = 30;
 
-  // ✅ 3pm rule: before 3pm -> earliest tomorrow; after 3pm -> earliest day after tomorrow
-  const CUT_OFF_HOUR = 15; // 15:00
+  const CUT_OFF_HOUR = 15; // 3pm
 
   /* =========================
-     VIEW ROUTER (#home / #diy)
+     VIEW ROUTER
   ========================== */
   const homeView = document.getElementById("homeView");
   const diyView = document.getElementById("diyView");
@@ -755,31 +763,21 @@
       ? "Submit a request and we’ll confirm your booking shortly."
       : "Choose a booking type below.";
 
-    // entering DIY: refresh date rules
     if (isDIY) {
       refreshMinDate();
       clampDateToMin();
-      if (!dateEl.value) {
-        // default to minDate so user doesn't have to open date picker immediately
-        dateEl.value = minDate;
-      }
+      if (!dateEl.value) dateEl.value = minDate;
       refreshTimes();
     }
   }
 
-  goDIY.addEventListener("click", () => {
-    location.hash = "#diy";
-  });
-
-  backHome.addEventListener("click", () => {
-    location.hash = "#home";
-  });
-
+  goDIY.addEventListener("click", () => location.hash = "#diy");
+  backHome.addEventListener("click", () => location.hash = "#home");
   window.addEventListener("hashchange", () => setView());
   setView();
 
   /* =========================
-     DIY FORM ELEMENTS
+     DIY ELEMENTS
   ========================== */
   const $ = (id) => document.getElementById(id);
 
@@ -800,7 +798,7 @@
   form.action = SCRIPT_URL;
 
   /* =========================
-     DATE HELPERS (local)
+     DATE (3pm rule)
   ========================== */
   function localYMD(d = new Date()){
     const y = d.getFullYear();
@@ -808,15 +806,12 @@
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   }
-
   function addDays(d, n){
     const x = new Date(d);
     x.setDate(x.getDate() + n);
     return x;
   }
-
   function calcMinDateBy3pmRule(now = new Date()){
-    // before 3pm -> tomorrow; after 3pm -> day after tomorrow
     const afterCutoff = (now.getHours() >= CUT_OFF_HOUR);
     const min = addDays(now, afterCutoff ? 2 : 1);
     return localYMD(min);
@@ -825,16 +820,12 @@
   let minDate = calcMinDateBy3pmRule();
   dateEl.setAttribute("min", minDate);
 
-  function clampDateToMin(){
-    // iPhone 兜底：无论用户怎么选，如果小于 min，就强制改回 min
-    if (dateEl.value && dateEl.value < minDate) {
-      dateEl.value = minDate;
-    }
-  }
-
   function refreshMinDate(){
     minDate = calcMinDateBy3pmRule();
     dateEl.setAttribute("min", minDate);
+  }
+  function clampDateToMin(){
+    if (dateEl.value && dateEl.value < minDate) dateEl.value = minDate;
   }
 
   /* =========================
@@ -914,7 +905,7 @@
       timeGrid.appendChild(b);
     }
 
-    selectTime(""); // reset
+    selectTime("");
   }
 
   /* =========================
@@ -934,7 +925,7 @@
   function guestsMax(){
     const v = guestsEl.value;
     if (!v) return 0;
-    if (v === "8+") return 0; // 8+ disable flavours
+    if (v === "8+") return 0; // disable flavours
     return Number(v) || 0;
   }
 
@@ -1024,7 +1015,6 @@
   /* =========================
      EVENTS
   ========================== */
-  // Date events (iPhone safe)
   dateEl.addEventListener("input", () => {
     refreshMinDate();
     clampDateToMin();
@@ -1040,7 +1030,6 @@
     if (guestsEl.value === "8+") {
       alert("For 8+ guests, please contact us to confirm availability.");
     }
-    // reset flavours when guests changes
     for (const f of flavours) flavourState[f] = 0;
     syncFlavoursField();
     renderFlavours();
@@ -1055,18 +1044,18 @@
     selectTime("");
   });
 
-  // Submission via iframe (stable)
+  /* =========================
+     SUBMIT (iframe)
+  ========================== */
   let pendingSubmit = false;
 
   form.addEventListener("submit", (e) => {
-    // must select time
     if (!timeEl.value) {
       e.preventDefault();
       show(bad, "Please select a time.");
       return;
     }
 
-    // must select date (and clamp)
     refreshMinDate();
     clampDateToMin();
     if (!dateEl.value){
@@ -1075,7 +1064,6 @@
       return;
     }
 
-    // URL sanity
     if (!SCRIPT_URL.includes("script.google.com/macros/s/") || !SCRIPT_URL.endsWith("/exec")) {
       e.preventDefault();
       show(bad, "SCRIPT_URL is not set. Please paste your Apps Script /exec URL.");
@@ -1088,7 +1076,6 @@
     btn.textContent = "Submitting...";
     pendingSubmit = true;
 
-    // timeout fallback
     setTimeout(() => {
       if (!pendingSubmit) return;
       pendingSubmit = false;
@@ -1110,16 +1097,22 @@
   });
 
   /* =========================
-     DIY INFO MODAL
+     DIY INFO MODAL (mobile scroll fixed)
   ========================== */
   const openDIYInfo = document.getElementById("openDIYInfo");
   const diyInfoModal = document.getElementById("diyInfoModal");
 
+  function isTouchDevice(){
+    return window.matchMedia("(pointer: coarse)").matches;
+  }
+
   function openModal(){
     diyInfoModal.classList.add("open");
     diyInfoModal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+    // ✅ do NOT lock body on touch devices (prevents iOS scroll issues)
+    if (!isTouchDevice()) document.body.style.overflow = "hidden";
   }
+
   function closeModal(){
     diyInfoModal.classList.remove("open");
     diyInfoModal.setAttribute("aria-hidden", "true");
@@ -1142,11 +1135,7 @@
   ========================== */
   syncFlavoursField();
   renderFlavours();
-
   refreshMinDate();
-  // Optional: default date to minDate on first load (helps UX if user goes straight to DIY)
-  // dateEl.value = minDate;
-
   refreshTimes();
 </script>
 
