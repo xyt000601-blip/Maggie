@@ -3,16 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Maggie Bakery | DIY Reservations</title>
+  <title>Maggie Bakery | Reservations</title>
 
   <style>
     :root{
       --gold:#c9a86a;
       --gold2:#b89655;
+      --green:#0f3d2e;
+      --text:#16221c;
       --muted:#5c6b63;
       --card: rgba(255,255,255,.92);
       --stroke: rgba(201,168,106,.22);
       --shadow: 0 60px 140px rgba(0,0,0,.35);
+      --shadow2: 0 28px 90px rgba(0,0,0,.22);
     }
 
     *{ box-sizing:border-box; }
@@ -20,53 +23,64 @@
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      min-height: 100vh;
+      min-height:100vh;
       background: linear-gradient(rgba(13,55,40,.76), rgba(13,55,40,.90));
-      color:#16221c;
+      color: var(--text);
+      overflow-x:hidden;
     }
 
+    /* Background image */
     body::before{
       content:"";
       position:fixed;
       inset:0;
       background:url("images/restaurant.jpg") center/cover no-repeat;
-      filter: blur(5px) brightness(.90);
-      transform: scale(1.05);
+      filter: blur(4px) brightness(.92);
+      transform: scale(1.04);
       z-index:-2;
     }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: linear-gradient(rgba(13,55,40,.22), rgba(13,55,40,.48));
+      z-index:-1;
+    }
 
-    .wrap{ max-width: 920px; margin: 56px auto; padding: 0 16px 64px; }
+    .wrap{
+      max-width: 980px;
+      margin: 44px auto;
+      padding: 0 16px 64px;
+    }
 
     .card{
       background: var(--card);
       backdrop-filter: blur(18px);
       border-radius: 28px;
-      padding: 32px;
+      padding: 30px;
       box-shadow: var(--shadow);
       border: 1px solid var(--stroke);
     }
 
+    /* Top brand */
     .brand{
-      font-size: 26px;
+      font-size: 28px;
       letter-spacing: .26em;
       text-transform: uppercase;
       color: var(--gold);
       font-weight: 900;
       text-align:center;
-      margin: 6px 0 6px;
+      margin: 6px 0 8px;
     }
-
     .location{
       text-align:center;
       font-size:14px;
       letter-spacing:.18em;
       text-transform:uppercase;
       color: rgba(15,61,46,.65);
-      margin-top:0;
-      margin-bottom:10px;
-      font-weight:800;
+      margin: 0 0 12px;
+      font-weight: 800;
     }
-
     .sub{
       margin:0;
       text-align:center;
@@ -75,8 +89,13 @@
       line-height:1.5;
     }
 
-    .info{ margin-top: 18px; display:grid; gap:10px; justify-content:center; }
-
+    /* “menu-like” pills */
+    .info{
+      margin-top: 18px;
+      display:grid;
+      gap:10px;
+      justify-content:center;
+    }
     .pill{
       display:flex;
       align-items:center;
@@ -88,13 +107,13 @@
       border: 1px solid rgba(15,61,46,.10);
       color: rgba(15,61,46,.86);
       font-size: 12px;
-      font-weight: 800;
-      width: min(520px, 100%);
+      font-weight: 750;
+      width: min(560px, 100%);
       margin: 0 auto;
     }
     .pill.has-call{ justify-content: space-between; }
     .pill.gold{
-      background: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.45);
       border: 1px solid rgba(201,168,106,.55);
       color: rgba(120,86,30,.92);
     }
@@ -103,7 +122,6 @@
       text-decoration:none;
       border-bottom: 1px solid rgba(15,61,46,.18);
     }
-
     .call{
       text-decoration:none;
       padding: 8px 12px;
@@ -116,13 +134,126 @@
       white-space:nowrap;
     }
 
+    /* View switch */
+    .view{ display:none; }
+    .view.active{ display:block; }
+
+    .top-actions{
+      display:flex;
+      justify-content:flex-start;
+      gap:10px;
+      margin: 18px 0 4px;
+    }
+    .back{
+      appearance:none;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
+      color:#1f2d26;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    /* Landing cards */
+    .landing-grid{
+      margin-top: 22px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+    }
+
+    .tile{
+      border-radius: 22px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.06);
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow2);
+      display:flex;
+      flex-direction:column;
+      min-height: 420px;
+    }
+
+    .hero{
+      width:100%;
+      aspect-ratio: 16/10;
+      background:#ddd 50% 60%/cover no-repeat; /* ✅ image content a bit lower */
+    }
+
+    .tile-body{
+      padding: 18px 18px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
+    }
+
+    .kicker{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color: rgba(15,61,46,.70);
+      font-weight:900;
+    }
+
+    .tile-title{
+      margin:0;
+      font-size:22px;
+      letter-spacing:.02em;
+      color: var(--green);
+      font-weight: 950;
+    }
+
+    .tile-text{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height:1.5;
+    }
+
+    .tile-actions{
+      margin-top:auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius: 16px;
+      padding: 12px 16px;
+      font-weight: 950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:.15s;
+      font-size: 13px;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color:#fff;
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.65);
+      border:1px solid rgba(201,168,106,.50);
+      color: rgba(120,86,30,.92);
+    }
+    .btn.disabled{
+      background: rgba(0,0,0,.06);
+      color: rgba(0,0,0,.35);
+      cursor:not-allowed;
+      border:1px solid rgba(0,0,0,.06);
+    }
+
+    /* DIY form */
+    form{ margin-top: 14px; }
     .grid{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:14px;
-      margin-top: 22px;
+      margin-top: 10px;
     }
-
     label{
       display:block;
       font-size:13px;
@@ -130,7 +261,6 @@
       color: rgba(15,61,46,.88);
       font-weight: 800;
     }
-
     input,select,textarea{
       width:100%;
       padding: 12px 12px;
@@ -142,14 +272,14 @@
     }
     textarea{ min-height: 96px; resize: vertical; }
 
-    .btn{
+    .submit{
       margin-top: 18px;
       width:100%;
       border:0;
       border-radius: 18px;
       padding: 15px;
       font-size: 16px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: .10em;
       text-transform: uppercase;
       background: linear-gradient(135deg, var(--gold), var(--gold2));
@@ -157,7 +287,7 @@
       cursor:pointer;
       transition:.15s;
     }
-    .btn:disabled{ opacity:.6; cursor:not-allowed; }
+    .submit:disabled{ opacity:.6; cursor:not-allowed; }
 
     .toast{
       margin-top: 12px;
@@ -169,13 +299,13 @@
     .ok{ background:#e7f7ee; color:#1c6f48; }
     .bad{ background:#ffecec; color:#8b1a1a; }
 
+    /* Time buttons */
     .time-grid{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap:10px;
       margin-top: 8px;
     }
-
     .time-btn{
       border:1px solid rgba(0,0,0,.10);
       background:#fff;
@@ -185,7 +315,7 @@
       font-weight:900;
       cursor:pointer;
       transition:.12s;
-      color:#1f2d26;
+      text-align:center;
     }
     .time-btn.selected{
       border-color: rgba(201,168,106,.85);
@@ -193,14 +323,13 @@
     }
     .time-btn.disabled{ opacity:.45; cursor:not-allowed; }
 
-    /* === Flavour selector === */
+    /* Flavours */
     .flavour-grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:12px;
       margin-top:10px;
     }
-
     .flavour-item{
       display:flex;
       align-items:center;
@@ -210,27 +339,23 @@
       border:1px solid rgba(0,0,0,.08);
       background:#fff;
     }
-
     .flavour-name{
-      font-weight:900;
+      font-weight:950;
       color: rgba(15,61,46,.92);
       font-size:14px;
     }
-
     .stepper{
       display:flex;
       align-items:center;
       gap:10px;
     }
-
     .qty{
       width:26px;
       text-align:center;
-      font-weight:900;
+      font-weight:950;
       font-size:14px;
       color:#1f2d26;
     }
-
     .step-btn{
       width:34px;
       height:34px;
@@ -243,14 +368,8 @@
       padding:0;
       transition:.12s;
     }
-
     .step-btn:active{ transform: scale(.98); }
-
-    .step-btn[disabled]{
-      opacity:.45;
-      cursor:not-allowed;
-    }
-
+    .step-btn[disabled]{ opacity:.45; cursor:not-allowed; }
     .tri{
       width:0;height:0;
       border-left:6px solid transparent;
@@ -265,11 +384,17 @@
       color: rgba(15,61,46,.55);
     }
 
+    @media(max-width:820px){
+      .landing-grid{ grid-template-columns: 1fr; }
+      .tile{ min-height: unset; }
+    }
     @media(max-width:720px){
       .grid{ grid-template-columns:1fr; }
       .time-grid{ grid-template-columns: repeat(3, 1fr); }
       .flavour-grid{ grid-template-columns: 1fr; }
-      .wrap{ margin: 28px auto; }
+      .wrap{ margin: 26px auto; }
+      .card{ padding: 22px; }
+      .brand{ font-size: 26px; }
     }
   </style>
 </head>
@@ -280,102 +405,185 @@
 
       <div class="brand">MAGGIE BAKERY</div>
       <div class="location">Albany • Auckland</div>
-      <p class="sub">Submit a DIY booking request and we’ll confirm shortly.</p>
+      <p class="sub">Choose a booking type below.</p>
 
+      <!-- Shared info bar (menu-like) -->
       <div class="info">
         <div class="pill has-call">
           <span>Open 10am – 7pm</span>
-          <!-- ✅ 改成你的真实电话 -->
           <a class="call" href="tel:+64223189478">Call</a>
         </div>
-
         <div class="pill">
           <a target="_blank" rel="noopener"
              href="https://www.google.com/maps/search/?api=1&query=1%2F200%20Dairy%20Flat%20Highway">
             1/200 Dairy Flat Highway
           </a>
         </div>
-
         <div class="pill gold">
           <span>Request only · Confirmation required</span>
         </div>
       </div>
 
-      <form id="form" method="POST" target="hidden_iframe">
-        <div class="grid">
-          <div>
-            <label>Name</label>
-            <input name="name" required autocomplete="name" />
-          </div>
-          <div>
-            <label>Phone</label>
-            <input name="phone" required autocomplete="tel" />
-          </div>
+      <!-- ============ LANDING ============ -->
+      <section id="homeView" class="view active" aria-label="Home">
+        <div class="landing-grid">
+          <!-- DIY card -->
+          <article class="tile">
+            <div class="hero" style="background-image:url('images/diy.jpg');"></div>
+            <div class="tile-body">
+              <div class="kicker">ON-SITE ACTIVITY</div>
+              <h2 class="tile-title">DIY Cake Workshop</h2>
+              <p class="tile-text">
+                Join our on-site DIY cake experience. Choose your date and time, and we’ll confirm your spot shortly.
+              </p>
+              <div class="tile-actions">
+                <button class="btn primary" id="goDIY">Book DIY</button>
+                <button class="btn ghost" type="button" onclick="alert('Info: Please call us if you have questions.')">Info</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Buffet card -->
+          <article class="tile">
+            <div class="hero" style="background-image:url('images/buffet.jpg');"></div>
+            <div class="tile-body">
+              <div class="kicker">DINING</div>
+              <h2 class="tile-title">Buffet</h2>
+              <p class="tile-text">
+                Our buffet booking will be available soon. Please check back later for updates.
+              </p>
+              <div class="tile-actions">
+                <button class="btn disabled" type="button" disabled>Coming soon</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ DIY ============ -->
+      <section id="diyView" class="view" aria-label="DIY booking">
+        <div class="top-actions">
+          <button class="back" id="backHome" type="button">← Back</button>
         </div>
 
-        <div class="grid">
-          <div>
-            <label>Email (optional)</label>
-            <input name="email" type="email" autocomplete="email" />
-          </div>
-          <div>
-            <label>Guests</label>
-            <select name="guests" id="guests" required>
-              <option value="">Select</option>
-              <option>1</option><option>2</option><option>3</option><option>4</option>
-              <option>5</option><option>6</option><option>7</option><option>8</option>
-              <option value="8+">8+</option>
-            </select>
-          </div>
-        </div>
+        <p class="sub" style="margin-top:6px;">Submit a request and we’ll confirm your booking shortly.</p>
 
-        <!-- ✅ Flavours -->
-        <div style="margin-top:10px;">
-          <label>Flavours (max = guests)</label>
-          <div id="flavourGrid" class="flavour-grid"></div>
-          <input type="hidden" name="flavours" id="flavours" value="" />
-          <div class="flavour-hint" id="flavourHint">Please select guests first.</div>
-        </div>
-
-        <div class="grid">
-          <div>
-            <label>Date</label>
-            <input name="date" id="date" type="date" required />
+        <form id="form" method="POST" target="hidden_iframe">
+          <div class="grid">
+            <div>
+              <label>Name</label>
+              <input name="name" required autocomplete="name" />
+            </div>
+            <div>
+              <label>Phone</label>
+              <input name="phone" required autocomplete="tel" />
+            </div>
           </div>
 
-          <div>
-            <label>Time</label>
-            <div id="timeGrid" class="time-grid"></div>
-
-            <!-- ✅ hidden select：给表单提交用 -->
-            <select name="time" id="time" required hidden>
-              <option value="">Select</option>
-            </select>
+          <div class="grid">
+            <div>
+              <label>Email (optional)</label>
+              <input name="email" type="email" autocomplete="email" />
+            </div>
+            <div>
+              <label>Guests</label>
+              <select name="guests" id="guests" required>
+                <option value="">Select</option>
+                <option>1</option><option>2</option><option>3</option><option>4</option>
+                <option>5</option><option>6</option><option>7</option><option>8</option>
+                <option value="8+">8+</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <label>Notes</label>
-        <textarea name="notes" placeholder="Allergies, birthday message, pram/high chair..."></textarea>
+          <!-- Flavours -->
+          <div style="margin-top:10px;">
+            <label>Flavours (max = guests)</label>
+            <div id="flavourGrid" class="flavour-grid"></div>
+            <input type="hidden" name="flavours" id="flavours" value="" />
+            <div class="flavour-hint" id="flavourHint">Please select guests first.</div>
+          </div>
 
-        <button class="btn" id="btn" type="submit">Request a booking</button>
+          <div class="grid">
+            <div>
+              <label>Date</label>
+              <input name="date" id="date" type="date" required />
+            </div>
 
-        <div class="toast ok" id="ok">Submitted! We’ll confirm shortly.</div>
-        <div class="toast bad" id="bad"></div>
-      </form>
+            <div>
+              <label>Time</label>
+              <div id="timeGrid" class="time-grid"></div>
 
-      <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+              <!-- hidden select: for form submit -->
+              <select name="time" id="time" required hidden>
+                <option value="">Select</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Notes</label>
+          <textarea name="notes" placeholder="Allergies, birthday message, pram/high chair..."></textarea>
+
+          <button class="submit" id="btn" type="submit">Request a booking</button>
+
+          <div class="toast ok" id="ok">Submitted! We’ll confirm shortly.</div>
+          <div class="toast bad" id="bad"></div>
+        </form>
+
+        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+      </section>
+
     </div>
   </div>
 
 <script>
-  // ✅ 1) 改成你真实的 Apps Script Web App URL（必须以 /exec 结尾）
+  /* =========================
+     CONFIG
+  ========================== */
+  // ✅ 改成你真实的 Apps Script Web App URL（必须以 /exec 结尾）
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
-  // ✅ 可预约时间：10:00–18:00（10am–6pm）
+  // ✅ 可预约时间：10:00–18:00（10am–6pm），含 18:00
   const OPEN_HOURS = { start: "10:00", end: "18:00" };
   const SLOT_MINUTES = 30;
 
+  // ✅ 3pm rule: before 3pm -> earliest tomorrow; after 3pm -> earliest day after tomorrow
+  const CUT_OFF_HOUR = 15; // 15:00
+
+  /* =========================
+     VIEW ROUTER (#home / #diy)
+  ========================== */
+  const homeView = document.getElementById("homeView");
+  const diyView = document.getElementById("diyView");
+  const goDIY = document.getElementById("goDIY");
+  const backHome = document.getElementById("backHome");
+
+  function setView(hash){
+    const h = (hash || location.hash || "#home").toLowerCase();
+    const isDIY = h === "#diy";
+    homeView.classList.toggle("active", !isDIY);
+    diyView.classList.toggle("active", isDIY);
+    document.querySelector(".sub").textContent = isDIY
+      ? "Submit a request and we’ll confirm your booking shortly."
+      : "Choose a booking type below.";
+  }
+
+  goDIY.addEventListener("click", () => {
+    location.hash = "#diy";
+  });
+
+  backHome.addEventListener("click", () => {
+    location.hash = "#home";
+  });
+
+  window.addEventListener("hashchange", () => setView());
+  setView();
+
+  /* =========================
+     DIY FORM ELEMENTS
+  ========================== */
   const $ = (id) => document.getElementById(id);
+
   const form = $("form");
   const iframe = $("hidden_iframe");
   const dateEl = $("date");
@@ -386,13 +594,15 @@
   const bad = $("bad");
   const guestsEl = $("guests");
 
-  // Flavours DOM
   const flavourGrid = $("flavourGrid");
   const flavoursInput = $("flavours");
   const flavourHint = $("flavourHint");
 
   form.action = SCRIPT_URL;
 
+  /* =========================
+     DATE HELPERS (local)
+  ========================== */
   function localYMD(d = new Date()){
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -400,25 +610,39 @@
     return `${y}-${m}-${day}`;
   }
 
-  // ====== ✅ Date rule: before 3pm -> earliest = tomorrow; after 3pm -> earliest = day after tomorrow
-  function earliestBookableYMD(){
-    const now = new Date();
-    const isAfter3pm = now.getHours() >= 15; // 15:00+
-    const offsetDays = isAfter3pm ? 2 : 1;
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offsetDays);
-    return localYMD(d);
+  function addDays(d, n){
+    const x = new Date(d);
+    x.setDate(x.getDate() + n);
+    return x;
   }
 
-  let minDate = earliestBookableYMD();
+  function calcMinDateBy3pmRule(now = new Date()){
+    // before 3pm -> tomorrow; after 3pm -> day after tomorrow
+    const afterCutoff = (now.getHours() >= CUT_OFF_HOUR);
+    const min = addDays(now, afterCutoff ? 2 : 1);
+    return localYMD(min);
+  }
+
+  let minDate = calcMinDateBy3pmRule();
   dateEl.setAttribute("min", minDate);
 
-  function clampPastDate(){
-    // iOS 有时仍可选过去日期：这里强制纠正到 minDate
+  function clampDateToMin(){
+    // iPhone 兜底：无论用户怎么选，如果小于 min，就强制改回 min
     if (dateEl.value && dateEl.value < minDate) {
       dateEl.value = minDate;
     }
   }
 
+  // 每次打开 DIY 页时更新 min（避免跨天或跨 3pm 之后规则没刷新）
+  function refreshMinDate(){
+    minDate = calcMinDateBy3pmRule();
+    dateEl.setAttribute("min", minDate);
+    clampDateToMin();
+  }
+
+  /* =========================
+     TIME SLOTS
+  ========================== */
   function toMinutes(t){
     const [h,m] = t.split(":").map(Number);
     return h*60 + m;
@@ -446,7 +670,6 @@
     el.style.display = "block";
   }
 
-  // ====== Time buttons
   function selectTime(value){
     timeEl.value = value;
     timeGrid.querySelectorAll(".time-btn").forEach(b=>{
@@ -457,11 +680,6 @@
   function refreshTimes(){
     const d = dateEl.value;
     if (!d) return;
-
-    // 重新计算 minDate（跨天时也能自动变）
-    minDate = earliestBookableYMD();
-    dateEl.setAttribute("min", minDate);
-    clampPastDate();
 
     const now = new Date();
     const nowMinutes = now.getHours()*60 + now.getMinutes();
@@ -487,7 +705,6 @@
       b.dataset.value = s;
 
       const slotMinutes = toMinutes(s);
-      // 如果选的是“今天”，禁用过去时间；但你的 minDate 至少是明天/后天，所以这里基本不会发生
       const disable = (d === today) && (slotMinutes < nowMinutes);
 
       if (disable){
@@ -500,30 +717,27 @@
       timeGrid.appendChild(b);
     }
 
-    selectTime("");
+    selectTime(""); // reset
   }
 
-  // iPhone 兜底：输入/选择后都强制不允许早于 minDate
-  dateEl.addEventListener("input", () => { clampPastDate(); refreshTimes(); });
-  dateEl.addEventListener("change", () => { clampPastDate(); refreshTimes(); });
-
-  // ====== Flavours
-  const flavourList = [
-    { key:"Strawberry", label:"Strawberry" },
-    { key:"Blueberry", label:"Blueberry" },
-    { key:"Oreo", label:"Oreo" },
-    { key:"Chestnut", label:"Chestnut" },
-    { key:"Taro", label:"Taro" },
-    { key:"Coconut Panna Cotta", label:"Coconut Panna Cotta" }
+  /* =========================
+     FLAVOURS (max = guests)
+  ========================== */
+  const flavours = [
+    "Strawberry",
+    "Blueberry",
+    "Oreo",
+    "Chestnut",
+    "Taro",
+    "Coconut Panna Cotta"
   ];
 
-  const flavourState = {};
-  flavourList.forEach(f => flavourState[f.key] = 0);
+  const flavourState = Object.fromEntries(flavours.map(f => [f, 0]));
 
   function guestsMax(){
     const v = guestsEl.value;
     if (!v) return 0;
-    if (v === "8+") return 0; // 8+ 不允许选口味（你要改成允许=8也可以）
+    if (v === "8+") return 0; // 8+ disable flavours
     return Number(v) || 0;
   }
 
@@ -532,8 +746,7 @@
   }
 
   function syncFlavoursField(){
-    // 提交字符串：Strawberry:1, Blueberry:0...
-    const parts = flavourList.map(f => `${f.key}:${flavourState[f.key]}`);
+    const parts = flavours.map(f => `${f}:${flavourState[f]}`);
     flavoursInput.value = parts.join(", ");
   }
 
@@ -552,13 +765,13 @@
       flavourHint.textContent = `Selected ${total} / ${max}`;
     }
 
-    for (const f of flavourList){
+    for (const f of flavours){
       const item = document.createElement("div");
       item.className = "flavour-item";
 
       const name = document.createElement("div");
       name.className = "flavour-name";
-      name.textContent = f.label;
+      name.textContent = f;
 
       const stepper = document.createElement("div");
       stepper.className = "stepper";
@@ -570,21 +783,20 @@
 
       const qty = document.createElement("div");
       qty.className = "qty";
-      qty.textContent = String(flavourState[f.key]);
+      qty.textContent = String(flavourState[f]);
 
       const upBtn = document.createElement("button");
       upBtn.type = "button";
       upBtn.className = "step-btn";
       upBtn.innerHTML = `<span class="tri up"></span>`;
 
-      // disable rules
-      downBtn.disabled = guestNotReady || flavourState[f.key] <= 0;
+      downBtn.disabled = guestNotReady || flavourState[f] <= 0;
       upBtn.disabled = guestNotReady || total >= max;
 
       downBtn.addEventListener("click", () => {
         if (guestNotReady) return;
-        if (flavourState[f.key] > 0){
-          flavourState[f.key]--;
+        if (flavourState[f] > 0){
+          flavourState[f]--;
           syncFlavoursField();
           renderFlavours();
         }
@@ -595,7 +807,7 @@
         const maxNow = guestsMax();
         const totalNow = totalSelected();
         if (totalNow < maxNow){
-          flavourState[f.key]++;
+          flavourState[f]++;
           syncFlavoursField();
           renderFlavours();
         }
@@ -612,43 +824,61 @@
     }
   }
 
+  /* =========================
+     EVENTS
+  ========================== */
+  // Date events (iPhone safe)
+  dateEl.addEventListener("input", () => {
+    refreshMinDate();
+    clampDateToMin();
+    refreshTimes();
+  });
+  dateEl.addEventListener("change", () => {
+    refreshMinDate();
+    clampDateToMin();
+    refreshTimes();
+  });
+
   guestsEl.addEventListener("change", () => {
-    // 若改小 guests，必须清零避免超额
-    flavourList.forEach(f => flavourState[f.key] = 0);
+    if (guestsEl.value === "8+") {
+      alert("For 8+ guests, please contact us to confirm availability.");
+    }
+    // reset flavours when guests changes
+    for (const f of flavours) flavourState[f] = 0;
     syncFlavoursField();
     renderFlavours();
   });
 
-  // ====== Submit via iframe
+  form.addEventListener("reset", () => {
+    for (const f of flavours) flavourState[f] = 0;
+    syncFlavoursField();
+    renderFlavours();
+    refreshMinDate();
+    refreshTimes();
+    selectTime("");
+  });
+
+  // Submission via iframe (stable)
   let pendingSubmit = false;
 
   form.addEventListener("submit", (e) => {
-    // 必须选时间
+    // must select time
     if (!timeEl.value) {
       e.preventDefault();
       show(bad, "Please select a time.");
       return;
     }
 
-    // 必须选 guests（原本 required 会拦，但这里给更清晰提示）
-    if (!guestsEl.value) {
+    // must select date (and clamp)
+    refreshMinDate();
+    clampDateToMin();
+    if (!dateEl.value){
       e.preventDefault();
-      show(bad, "Please select guests.");
+      show(bad, "Please select a date.");
       return;
     }
 
-    // 口味总数必须 <= guests（其实我们UI已限制，这里兜底）
-    if (guestsEl.value !== "8+") {
-      const max = guestsMax();
-      const total = totalSelected();
-      if (total > max) {
-        e.preventDefault();
-        show(bad, `Flavours total cannot exceed guests. (${total}/${max})`);
-        return;
-      }
-    }
-
-    // SCRIPT_URL 校验
+    // URL sanity
     if (!SCRIPT_URL.includes("script.google.com/macros/s/") || !SCRIPT_URL.endsWith("/exec")) {
       e.preventDefault();
       show(bad, "SCRIPT_URL is not set. Please paste your Apps Script /exec URL.");
@@ -661,7 +891,7 @@
     btn.textContent = "Submitting...";
     pendingSubmit = true;
 
-    // 超时兜底
+    // timeout fallback
     setTimeout(() => {
       if (!pendingSubmit) return;
       pendingSubmit = false;
@@ -680,16 +910,14 @@
     show(ok, "Submitted! We’ll confirm shortly.");
 
     form.reset();
-    // reset flavour state
-    flavourList.forEach(f => flavourState[f.key] = 0);
-    syncFlavoursField();
-    renderFlavours();
-    refreshTimes();
   });
 
-  // Init
+  /* =========================
+     INIT
+  ========================== */
   syncFlavoursField();
   renderFlavours();
+  refreshMinDate();
   refreshTimes();
 </script>
 
