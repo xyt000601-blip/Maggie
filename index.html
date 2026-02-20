@@ -3,27 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Maggie Bakery | Reservations</title>
+  <title>Maggie Bakery | DIY Reservations</title>
 
   <style>
     :root{
-      --green:#0f3d2e;
       --gold:#c9a86a;
       --gold2:#b89655;
       --muted:#5c6b63;
       --card: rgba(255,255,255,.92);
       --stroke: rgba(201,168,106,.22);
       --shadow: 0 60px 140px rgba(0,0,0,.35);
-      --ink:#16221c;
-
-      --cal-bg: rgba(255,255,255,.92);
-      --cal-border: rgba(201,168,106,.30);
-      --cal-soft: rgba(15,61,46,.06);
-      --cal-disabled: rgba(22,34,28,.22);
-      --cal-disabled-bg: rgba(0,0,0,.03);
-      --cal-hover: rgba(201,168,106,.14);
-      --cal-selected: rgba(201,168,106,.22);
-      --cal-selected-border: rgba(201,168,106,.75);
     }
 
     *{ box-sizing:border-box; }
@@ -33,7 +22,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       min-height: 100vh;
       background: linear-gradient(rgba(13,55,40,.76), rgba(13,55,40,.90));
-      color: var(--ink);
+      color:#16221c;
     }
 
     body::before{
@@ -46,15 +35,7 @@
       z-index:-2;
     }
 
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      background: linear-gradient(rgba(13,55,40,.30), rgba(13,55,40,.55));
-      z-index:-1;
-    }
-
-    .wrap{ max-width: 980px; margin: 56px auto; padding: 0 16px 64px; }
+    .wrap{ max-width: 920px; margin: 56px auto; padding: 0 16px 64px; }
 
     .card{
       background: var(--card);
@@ -72,25 +53,26 @@
       color: var(--gold);
       font-weight: 900;
       text-align:center;
-      margin: 6px 0 14px;
+      margin: 6px 0 6px;
     }
-    
+
     .location{
-  text-align:center;
-  font-size:14px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color: rgba(15,61,46,.65);
-  margin-top:-4px;
-  margin-bottom:10px;
-  font-weight:800;
-}
+      text-align:center;
+      font-size:14px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color: rgba(15,61,46,.65);
+      margin-top:0;
+      margin-bottom:10px;
+      font-weight:800;
+    }
+
     .sub{
       margin:0;
       text-align:center;
       color: var(--muted);
       font-size: 14px;
-      line-height:1.55;
+      line-height:1.5;
     }
 
     .info{ margin-top: 18px; display:grid; gap:10px; justify-content:center; }
@@ -106,8 +88,8 @@
       border: 1px solid rgba(15,61,46,.10);
       color: rgba(15,61,46,.86);
       font-size: 12px;
-      font-weight: 700;
-      width: min(560px, 100%);
+      font-weight: 800;
+      width: min(520px, 100%);
       margin: 0 auto;
     }
     .pill.has-call{ justify-content: space-between; }
@@ -134,108 +116,6 @@
       white-space:nowrap;
     }
 
-    /* ===== Landing sections ===== */
-    .page{ display:none; }
-    .page.active{ display:block; }
-
-    .section-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 22px;
-    }
-
-    .section{
-      border-radius: 22px;
-      border: 1px solid rgba(201,168,106,.18);
-      background: rgba(255,255,255,.65);
-      overflow:hidden;
-    }
-
-    .hero{
-      aspect-ratio: 16/10;
-      width:100%;
-      background:#ddd center/cover no-repeat;
-    }
-
-    .section-body{
-      padding: 18px;
-    }
-
-    .kicker{
-      font-size: 12px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(15,61,46,.75);
-      font-weight: 900;
-      margin-bottom: 6px;
-    }
-
-    .title{
-      font-size: 22px;
-      font-weight: 950;
-      color: rgba(15,61,46,.95);
-      margin: 0 0 8px;
-      line-height: 1.15;
-    }
-
-    .desc{
-      margin:0 0 14px;
-      color: rgba(22,34,28,.78);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .cta-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    .btn-main{
-      border:0;
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-size: 13px;
-      font-weight: 950;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color:#fff;
-      cursor:pointer;
-      transition:.15s;
-    }
-    .btn-main:hover{ transform: translateY(-1px); }
-
-    .btn-ghost{
-      border-radius: 16px;
-      padding: 11px 14px;
-      font-size: 13px;
-      font-weight: 950;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border: 1px solid rgba(201,168,106,.45);
-      background: rgba(201,168,106,.12);
-      color: rgba(120,86,30,.95);
-      cursor:pointer;
-      transition:.15s;
-    }
-
-    .btn-disabled{
-      border-radius: 16px;
-      padding: 11px 14px;
-      font-size: 13px;
-      font-weight: 950;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border: 1px solid rgba(0,0,0,.10);
-      background: rgba(0,0,0,.05);
-      color: rgba(22,34,28,.45);
-      cursor:not-allowed;
-    }
-
-    /* ===== Form page ===== */
     .grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -248,7 +128,7 @@
       font-size:13px;
       margin:12px 0 6px;
       color: rgba(15,61,46,.88);
-      font-weight: 750;
+      font-weight: 800;
     }
 
     input,select,textarea{
@@ -302,9 +182,10 @@
       padding:10px;
       border-radius:14px;
       font-size:14px;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
       transition:.12s;
+      color:#1f2d26;
     }
     .time-btn.selected{
       border-color: rgba(201,168,106,.85);
@@ -312,185 +193,83 @@
     }
     .time-btn.disabled{ opacity:.45; cursor:not-allowed; }
 
-    /* ===== Custom calendar ===== */
-    .date-box{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(0,0,0,.08);
-      background:#fff;
-      font-size: 15px;
+    /* === Flavour selector === */
+    .flavour-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+
+    .flavour-item{
       display:flex;
       align-items:center;
       justify-content:space-between;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+    }
+
+    .flavour-name{
+      font-weight:900;
+      color: rgba(15,61,46,.92);
+      font-size:14px;
+    }
+
+    .stepper{
+      display:flex;
+      align-items:center;
       gap:10px;
     }
-    .date-box .value{
-      color: rgba(22,34,28,.92);
-      font-weight: 750;
-    }
-    .date-box .placeholder{
-      color: rgba(22,34,28,.45);
-      font-weight: 650;
-    }
-    .date-box .chip{
-      font-size: 12px;
-      font-weight: 900;
-      color: rgba(120,86,30,.95);
-      background: rgba(201,168,106,.16);
-      border: 1px solid rgba(201,168,106,.35);
-      padding: 6px 10px;
-      border-radius: 999px;
-      white-space: nowrap;
+
+    .qty{
+      width:26px;
+      text-align:center;
+      font-weight:900;
+      font-size:14px;
+      color:#1f2d26;
     }
 
-    .calendar{
-      margin-top: 10px;
-      border-radius: 18px;
-      background: var(--cal-bg);
-      border: 1px solid var(--cal-border);
-      overflow:hidden;
-      width:100%;
-      max-width:100%;
-    }
-
-    .cal-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 12px 12px;
-      background: linear-gradient(180deg, rgba(15,61,46,.10), rgba(15,61,46,.04));
-      border-bottom: 1px solid rgba(201,168,106,.25);
-    }
-
-    .cal-title{
-      font-weight: 950;
-      letter-spacing: .06em;
-      color: rgba(15,61,46,.92);
-      text-transform: uppercase;
-      font-size: 12px;
-    }
-
-    .cal-nav{
-      display:flex;
-      gap:8px;
-    }
-
-    .cal-nav button{
-      border: 1px solid rgba(201,168,106,.35);
-      background: rgba(201,168,106,.14);
-      color: rgba(120,86,30,.95);
-      border-radius: 12px;
-      padding: 6px 10px;
-      font-weight: 950;
+    .step-btn{
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
       cursor:pointer;
-      font-size: 12px;
+      display:grid;
+      place-items:center;
+      padding:0;
+      transition:.12s;
     }
-    .cal-nav button:disabled{
+
+    .step-btn:active{ transform: scale(.98); }
+
+    .step-btn[disabled]{
       opacity:.45;
       cursor:not-allowed;
     }
 
-    .cal-week{
-      display:grid;
-      grid-template-columns: repeat(7, 1fr);
-      padding: 10px 12px 8px;
-      gap:8px;
-      background: rgba(255,255,255,.65);
-      border-bottom: 1px solid rgba(0,0,0,.04);
-      width:100%;
+    .tri{
+      width:0;height:0;
+      border-left:6px solid transparent;
+      border-right:6px solid transparent;
     }
-    .cal-week div{
-      text-align:center;
-      font-size: 11px;
-      font-weight: 950;
-      color: rgba(15,61,46,.65);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
+    .tri.up{ border-bottom:9px solid rgba(15,61,46,.80); }
+    .tri.down{ border-top:9px solid rgba(15,61,46,.80); }
 
-    .cal-grid{
-      display:grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap:8px;
-      padding: 12px;
-      background: rgba(255,255,255,.75);
-      width:100%;
-    }
-
-    .day{
-      height: 42px;
-      border-radius: 14px;
-      border: 1px solid rgba(0,0,0,.06);
-      background: #fff;
-      font-weight: 950;
-      font-size: 13px;
-      color: rgba(22,34,28,.92);
-      cursor:pointer;
-      transition:.12s;
-      width:100%;
-      min-width:0;
-    }
-    .day:hover{
-      background: var(--cal-hover);
-      border-color: rgba(201,168,106,.35);
-      transform: translateY(-1px);
-    }
-    .day.muted{
-      color: rgba(22,34,28,.35);
-      background: rgba(0,0,0,.02);
-      border-color: rgba(0,0,0,.04);
-      cursor: default;
-    }
-    .day.disabled{
-      color: rgba(22,34,28,.22) !important;
-      background: var(--cal-disabled-bg);
-      border-color: rgba(0,0,0,.05);
-      cursor:not-allowed;
-    }
-    .day.selected{
-      background: var(--cal-selected);
-      border-color: var(--cal-selected-border);
-      box-shadow: 0 0 0 4px rgba(201,168,106,.18);
-    }
-
-    .sr-only{
-      position:absolute !important;
-      width:1px;height:1px;
-      padding:0;margin:-1px;
-      overflow:hidden;clip:rect(0,0,0,0);
-      white-space:nowrap;border:0;
-    }
-
-    .top-actions{
-      margin-top: 18px;
-      display:flex;
-      justify-content:center;
-    }
-
-    /* ===== Mobile ===== */
-    @media(max-width:820px){
-      .section-grid{ grid-template-columns: 1fr; }
+    .flavour-hint{
+      margin-top:8px;
+      font-size:12px;
+      color: rgba(15,61,46,.55);
     }
 
     @media(max-width:720px){
-      .wrap{ margin: 28px auto; padding-bottom: 44px; }
-      .card{ padding: 20px; border-radius: 22px; }
       .grid{ grid-template-columns:1fr; }
       .time-grid{ grid-template-columns: repeat(3, 1fr); }
-      .date-box{ align-items:flex-start; }
-      .date-box .chip{
-        max-width: 58%;
-        white-space: normal;
-        line-height: 1.2;
-      }
-      .cal-week{ padding: 8px 10px 6px; gap: 6px; }
-      .cal-week div{ font-size: 10px; letter-spacing: .06em; }
-      .cal-grid{ padding: 10px; gap: 6px; }
-      .day{ height: 38px; border-radius: 12px; }
-      .cal-head{ padding: 10px 10px; }
-      .cal-title{ font-size: 11px; letter-spacing: .08em; }
-      .cal-nav button{ padding: 6px 9px; border-radius: 12px; }
+      .flavour-grid{ grid-template-columns: 1fr; }
+      .wrap{ margin: 28px auto; }
     }
   </style>
 </head>
@@ -501,11 +280,12 @@
 
       <div class="brand">MAGGIE BAKERY</div>
       <div class="location">Albany • Auckland</div>
-      <p class="sub">Choose a booking type below. We’ll confirm your booking shortly.</p>
+      <p class="sub">Submit a DIY booking request and we’ll confirm shortly.</p>
 
       <div class="info">
         <div class="pill has-call">
           <span>Open 10am – 7pm</span>
+          <!-- ✅ 改成你的真实电话 -->
           <a class="call" href="tel:+64223189478">Call</a>
         </div>
 
@@ -521,119 +301,74 @@
         </div>
       </div>
 
-      <!-- ===================== LANDING PAGE ===================== -->
-      <section id="pageHome" class="page active" aria-label="Booking type selection">
-        <div class="section-grid">
-
-          <div class="section">
-            <div class="hero" style="background-image:url('images/diy.jpg'); background-position: 60% 70%;"></div>
-            <div class="section-body">
-              <div class="kicker">On-site activity</div>
-              <h2 class="title">DIY Cake Workshop</h2>
-              <p class="desc">
-                Join our on-site DIY cake experience. Choose your date and time, and we’ll confirm your spot shortly.
-              </p>
-              <div class="cta-row">
-                <button class="btn-main" id="goDIY" type="button">Book DIY</button>
-                <button class="btn-ghost" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">Info</button>
-              </div>
-            </div>
+      <form id="form" method="POST" target="hidden_iframe">
+        <div class="grid">
+          <div>
+            <label>Name</label>
+            <input name="name" required autocomplete="name" />
           </div>
-
-          <div class="section">
-            <div class="hero" style="background-image:url('images/buffet.jpg'); background-position: 70% 80%;"></div>
-            <div class="section-body">
-              <div class="kicker">Dining</div>
-              <h2 class="title">Buffet</h2>
-              <p class="desc">
-                Our buffet booking will be available soon. Please check back later for updates.
-              </p>
-              <div class="cta-row">
-                <button class="btn-disabled" type="button" disabled>Coming soon</button>
-              </div>
-            </div>
+          <div>
+            <label>Phone</label>
+            <input name="phone" required autocomplete="tel" />
           </div>
-
-        </div>
-      </section>
-
-      <!-- ===================== DIY BOOKING PAGE ===================== -->
-      <section id="pageDIY" class="page" aria-label="DIY booking form">
-        <div class="top-actions">
-          <button class="btn-ghost" type="button" id="backHome">← Back</button>
         </div>
 
-        <form id="form" method="POST" target="hidden_iframe">
-          <div class="grid">
-            <div>
-              <label>Name</label>
-              <input name="name" required autocomplete="name" />
-            </div>
-            <div>
-              <label>Phone</label>
-              <input name="phone" required autocomplete="tel" />
-            </div>
+        <div class="grid">
+          <div>
+            <label>Email (optional)</label>
+            <input name="email" type="email" autocomplete="email" />
+          </div>
+          <div>
+            <label>Guests</label>
+            <select name="guests" id="guests" required>
+              <option value="">Select</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+              <option value="8+">8+</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ✅ Flavours -->
+        <div style="margin-top:10px;">
+          <label>Flavours (max = guests)</label>
+          <div id="flavourGrid" class="flavour-grid"></div>
+          <input type="hidden" name="flavours" id="flavours" value="" />
+          <div class="flavour-hint" id="flavourHint">Please select guests first.</div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Date</label>
+            <input name="date" id="date" type="date" required />
           </div>
 
-          <div class="grid">
-            <div>
-              <label>Email (optional)</label>
-              <input name="email" type="email" autocomplete="email" />
-            </div>
-            <div>
-              <label>Guests</label>
-              <select name="guests" id="guests" required>
-                <option value="">Select</option>
-                <option>1</option><option>2</option><option>3</option><option>4</option>
-                <option>5</option><option>6</option><option>7</option><option>8</option>
-                <option value="8+">8+</option>
-              </select>
-            </div>
+          <div>
+            <label>Time</label>
+            <div id="timeGrid" class="time-grid"></div>
+
+            <!-- ✅ hidden select：给表单提交用 -->
+            <select name="time" id="time" required hidden>
+              <option value="">Select</option>
+            </select>
           </div>
+        </div>
 
-          <div class="grid">
-            <div>
-              <label>Date</label>
+        <label>Notes</label>
+        <textarea name="notes" placeholder="Allergies, birthday message, pram/high chair..."></textarea>
 
-              <div class="date-box" id="dateBox" role="button" tabindex="0" aria-label="Choose date">
-                <div id="dateText" class="placeholder">Select a date</div>
-                <div id="dateRuleChip" class="chip"></div>
-              </div>
+        <button class="btn" id="btn" type="submit">Request a booking</button>
 
-              <div class="calendar" id="calendar" aria-live="polite"></div>
+        <div class="toast ok" id="ok">Submitted! We’ll confirm shortly.</div>
+        <div class="toast bad" id="bad"></div>
+      </form>
 
-              <!-- hidden real submit input -->
-              <input class="sr-only" name="date" id="date" required aria-hidden="true" />
-            </div>
-
-            <div>
-              <label>Time</label>
-              <div id="timeGrid" class="time-grid"></div>
-
-              <!-- hidden select for submit -->
-              <select name="time" id="time" required hidden>
-                <option value="">Select</option>
-              </select>
-            </div>
-          </div>
-
-          <label>Notes</label>
-          <textarea name="notes" placeholder="Allergies, birthday message, pram/high chair..."></textarea>
-
-          <button class="btn" id="btn" type="submit">Request a booking</button>
-
-          <div class="toast ok" id="ok">Submitted! We’ll confirm shortly.</div>
-          <div class="toast bad" id="bad"></div>
-        </form>
-
-        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-      </section>
-
+      <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
     </div>
   </div>
 
 <script>
-  // ✅ Apps Script Web App URL（必须以 /exec 结尾）
+  // ✅ 1) 改成你真实的 Apps Script Web App URL（必须以 /exec 结尾）
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
   // ✅ 可预约时间：10:00–18:00（10am–6pm）
@@ -641,40 +376,20 @@
   const SLOT_MINUTES = 30;
 
   const $ = (id) => document.getElementById(id);
-
-  // Pages
-  const pageHome = $("pageHome");
-  const pageDIY = $("pageDIY");
-  const goDIY = $("goDIY");
-  const backHome = $("backHome");
-
-  function showPage(which){
-    pageHome.classList.remove("active");
-    pageDIY.classList.remove("active");
-    which.classList.add("active");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  goDIY.addEventListener("click", () => showPage(pageDIY));
-  backHome.addEventListener("click", () => showPage(pageHome));
-
-  // Form refs (DIY page)
   const form = $("form");
   const iframe = $("hidden_iframe");
-
-  const dateBox = $("dateBox");
-  const dateText = $("dateText");
-  const dateRuleChip = $("dateRuleChip");
-  const calWrap = $("calendar");
-  const dateEl = $("date"); // hidden input
-
+  const dateEl = $("date");
   const timeEl = $("time");
   const timeGrid = $("timeGrid");
-
   const btn = $("btn");
   const ok = $("ok");
   const bad = $("bad");
   const guestsEl = $("guests");
+
+  // Flavours DOM
+  const flavourGrid = $("flavourGrid");
+  const flavoursInput = $("flavours");
+  const flavourHint = $("flavourHint");
 
   form.action = SCRIPT_URL;
 
@@ -685,61 +400,34 @@
     return `${y}-${m}-${day}`;
   }
 
-  function parseYMD(ymd){
-    const [y,m,d] = ymd.split("-").map(Number);
-    return new Date(y, m-1, d, 0,0,0,0);
-  }
-
-  function formatPretty(ymd){
-    const d = parseYMD(ymd);
-    const opts = { weekday:"short", year:"numeric", month:"short", day:"numeric" };
-    return d.toLocaleDateString("en-NZ", opts);
-  }
-
-  // ✅ 3pm rule: before 3pm -> earliest tomorrow, after 3pm -> earliest day after tomorrow
-  function getEarliestBookableDate(){
+  // ====== ✅ Date rule: before 3pm -> earliest = tomorrow; after 3pm -> earliest = day after tomorrow
+  function earliestBookableYMD(){
     const now = new Date();
-    const cutoffMinutes = 15 * 60;
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    const daysToAdd = (nowMinutes < cutoffMinutes) ? 1 : 2;
-
-    const earliest = new Date(now);
-    earliest.setHours(0,0,0,0);
-    earliest.setDate(earliest.getDate() + daysToAdd);
-    return earliest;
+    const isAfter3pm = now.getHours() >= 15; // 15:00+
+    const offsetDays = isAfter3pm ? 2 : 1;
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offsetDays);
+    return localYMD(d);
   }
 
-  function getEarliestBookableYMD(){
-    return localYMD(getEarliestBookableDate());
-  }
+  let minDate = earliestBookableYMD();
+  dateEl.setAttribute("min", minDate);
 
-  function updateRuleChip(){
-    const now = new Date();
-    const cutoffMinutes = 15 * 60;
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    dateRuleChip.textContent = (nowMinutes < cutoffMinutes)
-      ? "Before 3pm: earliest is tomorrow"
-      : "After 3pm: earliest is the day after tomorrow";
-  }
-
-  function show(el, msg){
-    ok.style.display = "none";
-    bad.style.display = "none";
-    if (msg) el.textContent = msg;
-    el.style.display = "block";
+  function clampPastDate(){
+    // iOS 有时仍可选过去日期：这里强制纠正到 minDate
+    if (dateEl.value && dateEl.value < minDate) {
+      dateEl.value = minDate;
+    }
   }
 
   function toMinutes(t){
     const [h,m] = t.split(":").map(Number);
     return h*60 + m;
   }
-
   function toHHMM(min){
     const h = String(Math.floor(min/60)).padStart(2,"0");
     const m = String(min%60).padStart(2,"0");
     return `${h}:${m}`;
   }
-
   function buildSlots(){
     const slots = [];
     let s = toMinutes(OPEN_HOURS.start);
@@ -751,6 +439,14 @@
     return slots;
   }
 
+  function show(el, msg){
+    ok.style.display = "none";
+    bad.style.display = "none";
+    if (msg) el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  // ====== Time buttons
   function selectTime(value){
     timeEl.value = value;
     timeGrid.querySelectorAll(".time-btn").forEach(b=>{
@@ -761,6 +457,11 @@
   function refreshTimes(){
     const d = dateEl.value;
     if (!d) return;
+
+    // 重新计算 minDate（跨天时也能自动变）
+    minDate = earliestBookableYMD();
+    dateEl.setAttribute("min", minDate);
+    clampPastDate();
 
     const now = new Date();
     const nowMinutes = now.getHours()*60 + now.getMinutes();
@@ -786,6 +487,7 @@
       b.dataset.value = s;
 
       const slotMinutes = toMinutes(s);
+      // 如果选的是“今天”，禁用过去时间；但你的 minDate 至少是明天/后天，所以这里基本不会发生
       const disable = (d === today) && (slotMinutes < nowMinutes);
 
       if (disable){
@@ -801,209 +503,152 @@
     selectTime("");
   }
 
-  // ===== Calendar rendering =====
-  const WEEKDAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  // iPhone 兜底：输入/选择后都强制不允许早于 minDate
+  dateEl.addEventListener("input", () => { clampPastDate(); refreshTimes(); });
+  dateEl.addEventListener("change", () => { clampPastDate(); refreshTimes(); });
 
-  let viewYear = new Date().getFullYear();
-  let viewMonth = new Date().getMonth();
+  // ====== Flavours
+  const flavourList = [
+    { key:"Strawberry", label:"Strawberry" },
+    { key:"Blueberry", label:"Blueberry" },
+    { key:"Oreo", label:"Oreo" },
+    { key:"Chestnut", label:"Chestnut" },
+    { key:"Taro", label:"Taro" },
+    { key:"Coconut Panna Cotta", label:"Coconut Panna Cotta" }
+  ];
 
-  function startOfMonth(y, m){ return new Date(y, m, 1, 0,0,0,0); }
-  function daysInMonth(y, m){ return new Date(y, m+1, 0).getDate(); }
+  const flavourState = {};
+  flavourList.forEach(f => flavourState[f.key] = 0);
 
-  function weekdayMon0(d){
-    const js = d.getDay(); // Sun=0..Sat=6
-    return (js + 6) % 7;
+  function guestsMax(){
+    const v = guestsEl.value;
+    if (!v) return 0;
+    if (v === "8+") return 0; // 8+ 不允许选口味（你要改成允许=8也可以）
+    return Number(v) || 0;
   }
 
-  function ymdFromParts(y,m,d){
-    const mm = String(m+1).padStart(2,"0");
-    const dd = String(d).padStart(2,"0");
-    return `${y}-${mm}-${dd}`;
+  function totalSelected(){
+    return Object.values(flavourState).reduce((a,b)=>a+b,0);
   }
 
-  function canSelectDate(ymd){
-    const earliest = getEarliestBookableYMD();
-    return ymd >= earliest;
+  function syncFlavoursField(){
+    // 提交字符串：Strawberry:1, Blueberry:0...
+    const parts = flavourList.map(f => `${f.key}:${flavourState[f.key]}`);
+    flavoursInput.value = parts.join(", ");
   }
 
-  function renderCalendar(){
-    updateRuleChip();
+  function renderFlavours(){
+    flavourGrid.innerHTML = "";
 
-    const earliestDate = getEarliestBookableDate();
-    const earliestY = earliestDate.getFullYear();
-    const earliestM = earliestDate.getMonth();
+    const max = guestsMax();
+    const total = totalSelected();
+    const guestNotReady = !guestsEl.value || guestsEl.value === "8+";
 
-    if (viewYear < earliestY || (viewYear === earliestY && viewMonth < earliestM)) {
-      viewYear = earliestY;
-      viewMonth = earliestM;
+    if (!guestsEl.value){
+      flavourHint.textContent = "Please select guests first.";
+    } else if (guestsEl.value === "8+"){
+      flavourHint.textContent = "For 8+ guests, please contact us to confirm. (Flavour selection disabled)";
+    } else {
+      flavourHint.textContent = `Selected ${total} / ${max}`;
     }
 
-    const first = startOfMonth(viewYear, viewMonth);
-    const leading = weekdayMon0(first);
-    const dim = daysInMonth(viewYear, viewMonth);
+    for (const f of flavourList){
+      const item = document.createElement("div");
+      item.className = "flavour-item";
 
-    const prevMonthDate = new Date(viewYear, viewMonth, 0);
-    const prevDim = prevMonthDate.getDate();
-    const prevY = prevMonthDate.getFullYear();
-    const prevM = prevMonthDate.getMonth();
+      const name = document.createElement("div");
+      name.className = "flavour-name";
+      name.textContent = f.label;
 
-    const head = document.createElement("div");
-    head.className = "cal-head";
+      const stepper = document.createElement("div");
+      stepper.className = "stepper";
 
-    const title = document.createElement("div");
-    title.className = "cal-title";
-    title.textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+      const downBtn = document.createElement("button");
+      downBtn.type = "button";
+      downBtn.className = "step-btn";
+      downBtn.innerHTML = `<span class="tri down"></span>`;
 
-    const nav = document.createElement("div");
-    nav.className = "cal-nav";
+      const qty = document.createElement("div");
+      qty.className = "qty";
+      qty.textContent = String(flavourState[f.key]);
 
-    const btnPrev = document.createElement("button");
-    btnPrev.type = "button";
-    btnPrev.textContent = "←";
+      const upBtn = document.createElement("button");
+      upBtn.type = "button";
+      upBtn.className = "step-btn";
+      upBtn.innerHTML = `<span class="tri up"></span>`;
 
-    const btnNext = document.createElement("button");
-    btnNext.type = "button";
-    btnNext.textContent = "→";
+      // disable rules
+      downBtn.disabled = guestNotReady || flavourState[f.key] <= 0;
+      upBtn.disabled = guestNotReady || total >= max;
 
-    const prevWouldBeEarlier =
-      (viewYear < earliestY) ||
-      (viewYear === earliestY && viewMonth <= earliestM);
-    btnPrev.disabled = prevWouldBeEarlier;
-
-    btnPrev.addEventListener("click", () => {
-      if (btnPrev.disabled) return;
-      viewMonth -= 1;
-      if (viewMonth < 0){ viewMonth = 11; viewYear -= 1; }
-      renderCalendar();
-    });
-
-    btnNext.addEventListener("click", () => {
-      viewMonth += 1;
-      if (viewMonth > 11){ viewMonth = 0; viewYear += 1; }
-      renderCalendar();
-    });
-
-    nav.appendChild(btnPrev);
-    nav.appendChild(btnNext);
-    head.appendChild(title);
-    head.appendChild(nav);
-
-    const week = document.createElement("div");
-    week.className = "cal-week";
-    WEEKDAYS.forEach(w=>{
-      const el = document.createElement("div");
-      el.textContent = w;
-      week.appendChild(el);
-    });
-
-    const grid = document.createElement("div");
-    grid.className = "cal-grid";
-
-    for (let i=0; i<42; i++){
-      const cell = document.createElement("button");
-      cell.type = "button";
-      cell.className = "day";
-
-      let y=viewYear, m=viewMonth, dayNum=0;
-      let isCurrent = true;
-
-      if (i < leading){
-        isCurrent = false;
-        y = prevY; m = prevM;
-        dayNum = prevDim - (leading - 1 - i);
-        cell.classList.add("muted");
-      } else if (i >= leading + dim){
-        isCurrent = false;
-        const next = new Date(viewYear, viewMonth+1, 1);
-        y = next.getFullYear(); m = next.getMonth();
-        dayNum = (i - (leading + dim)) + 1;
-        cell.classList.add("muted");
-      } else {
-        dayNum = (i - leading) + 1;
-      }
-
-      cell.textContent = String(dayNum);
-
-      const ymd = ymdFromParts(y,m,dayNum);
-
-      // Cross-month cells stay disabled (more "premium" look)
-      if (!isCurrent) {
-        cell.classList.add("disabled");
-        cell.disabled = true;
-      } else {
-        if (!canSelectDate(ymd)) {
-          cell.classList.add("disabled");
-          cell.disabled = true;
-        } else {
-          cell.addEventListener("click", () => {
-            dateEl.value = ymd;
-            dateText.className = "value";
-            dateText.textContent = formatPretty(ymd);
-
-            grid.querySelectorAll(".day").forEach(d=>{
-              d.classList.toggle("selected", d.dataset?.ymd === ymd);
-            });
-
-            refreshTimes();
-          });
+      downBtn.addEventListener("click", () => {
+        if (guestNotReady) return;
+        if (flavourState[f.key] > 0){
+          flavourState[f.key]--;
+          syncFlavoursField();
+          renderFlavours();
         }
-      }
+      });
 
-      cell.dataset.ymd = ymd;
+      upBtn.addEventListener("click", () => {
+        if (guestNotReady) return;
+        const maxNow = guestsMax();
+        const totalNow = totalSelected();
+        if (totalNow < maxNow){
+          flavourState[f.key]++;
+          syncFlavoursField();
+          renderFlavours();
+        }
+      });
 
-      if (dateEl.value && dateEl.value === ymd) {
-        cell.classList.add("selected");
-      }
+      stepper.appendChild(downBtn);
+      stepper.appendChild(qty);
+      stepper.appendChild(upBtn);
 
-      grid.appendChild(cell);
-    }
+      item.appendChild(name);
+      item.appendChild(stepper);
 
-    calWrap.innerHTML = "";
-    calWrap.appendChild(head);
-    calWrap.appendChild(week);
-    calWrap.appendChild(grid);
-
-    const earliest = getEarliestBookableYMD();
-    if (dateEl.value && dateEl.value < earliest) {
-      dateEl.value = earliest;
-      dateText.className = "value";
-      dateText.textContent = formatPretty(earliest);
-      refreshTimes();
-      setTimeout(renderCalendar, 0);
+      flavourGrid.appendChild(item);
     }
   }
-
-  dateBox.addEventListener("click", () => {
-    calWrap.scrollIntoView({ behavior:"smooth", block:"nearest" });
-  });
-  dateBox.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      calWrap.scrollIntoView({ behavior:"smooth", block:"nearest" });
-    }
-  });
 
   guestsEl.addEventListener("change", () => {
-    if (guestsEl.value === "8+") {
-      alert("For 8+ guests, please contact us to confirm availability.");
-    }
+    // 若改小 guests，必须清零避免超额
+    flavourList.forEach(f => flavourState[f.key] = 0);
+    syncFlavoursField();
+    renderFlavours();
   });
 
-  // Submit: iframe
+  // ====== Submit via iframe
   let pendingSubmit = false;
 
   form.addEventListener("submit", (e) => {
-    if (!dateEl.value) {
-      e.preventDefault();
-      show(bad, "Please select a date.");
-      return;
-    }
+    // 必须选时间
     if (!timeEl.value) {
       e.preventDefault();
       show(bad, "Please select a time.");
       return;
     }
+
+    // 必须选 guests（原本 required 会拦，但这里给更清晰提示）
+    if (!guestsEl.value) {
+      e.preventDefault();
+      show(bad, "Please select guests.");
+      return;
+    }
+
+    // 口味总数必须 <= guests（其实我们UI已限制，这里兜底）
+    if (guestsEl.value !== "8+") {
+      const max = guestsMax();
+      const total = totalSelected();
+      if (total > max) {
+        e.preventDefault();
+        show(bad, `Flavours total cannot exceed guests. (${total}/${max})`);
+        return;
+      }
+    }
+
+    // SCRIPT_URL 校验
     if (!SCRIPT_URL.includes("script.google.com/macros/s/") || !SCRIPT_URL.endsWith("/exec")) {
       e.preventDefault();
       show(bad, "SCRIPT_URL is not set. Please paste your Apps Script /exec URL.");
@@ -1016,6 +661,7 @@
     btn.textContent = "Submitting...";
     pendingSubmit = true;
 
+    // 超时兜底
     setTimeout(() => {
       if (!pendingSubmit) return;
       pendingSubmit = false;
@@ -1034,22 +680,18 @@
     show(ok, "Submitted! We’ll confirm shortly.");
 
     form.reset();
-    dateEl.value = "";
-    dateText.className = "placeholder";
-    dateText.textContent = "Select a date";
-    timeGrid.innerHTML = "";
-    timeEl.innerHTML = '<option value="">Select</option>';
-    renderCalendar();
-
-    // after submit go back home (optional)
-    // showPage(pageHome);
+    // reset flavour state
+    flavourList.forEach(f => flavourState[f.key] = 0);
+    syncFlavoursField();
+    renderFlavours();
+    refreshTimes();
   });
 
   // Init
-  updateRuleChip();
-  renderCalendar();
+  syncFlavoursField();
+  renderFlavours();
+  refreshTimes();
 </script>
 
 </body>
 </html>
-
