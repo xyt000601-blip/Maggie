@@ -177,7 +177,7 @@
     .hero{
       width:100%;
       aspect-ratio: 16/10;
-      background:#ddd 50% 60%/cover no-repeat; /* image content slightly lower */
+      background:#ddd 50% 60%/cover no-repeat;
     }
 
     .tile-body{
@@ -321,7 +321,10 @@
       border-color: rgba(201,168,106,.85);
       box-shadow: 0 0 0 4px rgba(201,168,106,.18);
     }
-    .time-btn.disabled{ opacity:.45; cursor:not-allowed; }
+    .time-btn.disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
 
     /* Flavours */
     .flavour-grid{
@@ -384,6 +387,145 @@
       color: rgba(15,61,46,.55);
     }
 
+    /* ===== Date Picker (custom, fixes mobile overflow + grey disabled) ===== */
+    .date-trigger{
+      width:100%;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.08);
+      background:#fff;
+      padding: 12px 12px;
+      font-size: 15px;
+      font-weight: 850;
+      color:#1f2d26;
+      cursor:pointer;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .date-trigger .muted{
+      font-weight: 750;
+      color: rgba(31,45,38,.55);
+      font-size: 13px;
+    }
+    .chev{
+      width:10px;height:10px;
+      border-right:2px solid rgba(15,61,46,.55);
+      border-bottom:2px solid rgba(15,61,46,.55);
+      transform: rotate(45deg);
+      flex: 0 0 auto;
+      margin-top:-2px;
+    }
+
+    .date-modal{
+      position: fixed;
+      inset: 0;
+      display:none;
+      z-index: 60;
+    }
+    .date-modal.open{ display:block; }
+
+    .date-backdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(6px);
+    }
+
+    .date-card{
+      position: relative;
+      width: min(720px, calc(100% - 24px));
+      margin: 12px auto;
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(201,168,106,.25);
+      border-radius: 22px;
+      box-shadow: 0 30px 120px rgba(0,0,0,.35);
+      max-height: calc(100dvh - 24px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .date-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 16px;
+      border-bottom:1px solid rgba(0,0,0,.06);
+      background: linear-gradient(180deg, rgba(201,168,106,.10), rgba(255,255,255,.0));
+      flex: 0 0 auto;
+    }
+    .date-title{
+      margin:0;
+      font-size: 16px;
+      font-weight: 950;
+      letter-spacing:.02em;
+      color: var(--green);
+    }
+    .date-x{
+      width:40px;height:40px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
+      cursor:pointer;
+      font-weight: 950;
+    }
+
+    .date-body{
+      padding: 14px 16px 16px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1 1 auto;
+    }
+
+    .date-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+
+    .date-btn{
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
+      border-radius:16px;
+      padding:10px 10px;
+      cursor:pointer;
+      text-align:left;
+      transition:.12s;
+      min-height: 56px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:4px;
+    }
+    .date-btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); }
+    .date-btn .d1{
+      font-weight: 950;
+      color:#1f2d26;
+      font-size: 14px;
+    }
+    .date-btn .d2{
+      font-weight: 800;
+      color: rgba(31,45,38,.55);
+      font-size: 12px;
+      letter-spacing:.02em;
+    }
+    .date-btn.selected{
+      border-color: rgba(201,168,106,.85);
+      box-shadow: 0 0 0 4px rgba(201,168,106,.18);
+    }
+    .date-btn.disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      background: rgba(0,0,0,.04);
+    }
+    .date-btn.disabled .d1,
+    .date-btn.disabled .d2{
+      color: rgba(0,0,0,.35);
+    }
+
     /* ===== Modal (DIY Info) ===== */
     .modal{
       position: fixed;
@@ -411,7 +553,6 @@
       box-shadow: 0 30px 120px rgba(0,0,0,.35);
       overflow: hidden;
 
-      /* ✅ key: make modal fit screen and allow internal scroll */
       max-height: calc(100dvh - 24px);
       display: flex;
       flex-direction: column;
@@ -456,8 +597,6 @@
 
     .modal-body{
       padding: 16px 18px 18px;
-
-      /* ✅ key: scroll inside modal on iPhone */
       overflow: auto;
       -webkit-overflow-scrolling: touch;
       flex: 1 1 auto;
@@ -528,6 +667,8 @@
       .brand{ font-size: 26px; }
       .bilingual-grid{ grid-template-columns: 1fr; }
       .modal-card{ margin: 12px auto; }
+      .date-grid{ grid-template-columns: repeat(2, 1fr); }
+      .date-card{ margin: 12px auto; }
     }
   </style>
 </head>
@@ -641,13 +782,21 @@
           <div class="grid">
             <div>
               <label>Date</label>
-              <input name="date" id="date" type="date" required />
+
+              <!-- Visible trigger -->
+              <button type="button" class="date-trigger" id="dateTrigger" aria-haspopup="dialog" aria-controls="dateModal">
+                <span id="dateTriggerText">Select a date</span>
+                <span class="muted" id="dateRuleText"></span>
+                <span class="chev" aria-hidden="true"></span>
+              </button>
+
+              <!-- Hidden input for form submit -->
+              <input type="hidden" name="date" id="date" required />
             </div>
 
             <div>
               <label>Time</label>
               <div id="timeGrid" class="time-grid"></div>
-
               <select name="time" id="time" required hidden>
                 <option value="">Select</option>
               </select>
@@ -666,6 +815,20 @@
         <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
       </section>
 
+    </div>
+  </div>
+
+  <!-- ===== DATE PICKER MODAL ===== -->
+  <div class="date-modal" id="dateModal" aria-hidden="true">
+    <div class="date-backdrop" data-date-close="1"></div>
+    <div class="date-card" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle">
+      <div class="date-head">
+        <h3 class="date-title" id="dateModalTitle">Select a date</h3>
+        <button class="date-x" type="button" aria-label="Close" data-date-close="1">✕</button>
+      </div>
+      <div class="date-body">
+        <div class="date-grid" id="dateGrid"></div>
+      </div>
     </div>
   </div>
 
@@ -738,10 +901,16 @@
   ========================== */
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
+  // booking slots: 10:00–18:00 (10am–6pm)
   const OPEN_HOURS = { start: "10:00", end: "18:00" };
   const SLOT_MINUTES = 30;
 
+  // 3pm rule
   const CUT_OFF_HOUR = 15; // 3pm
+
+  // date list range (show some disabled past dates for grey effect)
+  const SHOW_PAST_DAYS = 7;
+  const SHOW_FUTURE_DAYS = 45;
 
   /* =========================
      VIEW ROUTER
@@ -765,8 +934,8 @@
 
     if (isDIY) {
       refreshMinDate();
-      clampDateToMin();
-      if (!dateEl.value) dateEl.value = minDate;
+      ensureDateSelected();
+      refreshDateUI();
       refreshTimes();
     }
   }
@@ -783,14 +952,26 @@
 
   const form = $("form");
   const iframe = $("hidden_iframe");
-  const dateEl = $("date");
+
+  // date (custom)
+  const dateHidden = $("date");
+  const dateTrigger = $("dateTrigger");
+  const dateTriggerText = $("dateTriggerText");
+  const dateRuleText = $("dateRuleText");
+  const dateModal = $("dateModal");
+  const dateGrid = $("dateGrid");
+
+  // time
   const timeEl = $("time");
   const timeGrid = $("timeGrid");
+
+  // other
   const btn = $("btn");
   const ok = $("ok");
   const bad = $("bad");
   const guestsEl = $("guests");
 
+  // flavours
   const flavourGrid = $("flavourGrid");
   const flavoursInput = $("flavours");
   const flavourHint = $("flavourHint");
@@ -798,7 +979,7 @@
   form.action = SCRIPT_URL;
 
   /* =========================
-     DATE (3pm rule)
+     DATE (3pm rule + custom date picker)
   ========================== */
   function localYMD(d = new Date()){
     const y = d.getFullYear();
@@ -818,15 +999,114 @@
   }
 
   let minDate = calcMinDateBy3pmRule();
-  dateEl.setAttribute("min", minDate);
 
   function refreshMinDate(){
     minDate = calcMinDateBy3pmRule();
-    dateEl.setAttribute("min", minDate);
+    // show rule text
+    const now = new Date();
+    const afterCutoff = now.getHours() >= CUT_OFF_HOUR;
+    dateRuleText.textContent = afterCutoff ? "After 3pm: from day after tomorrow" : "Before 3pm: from tomorrow";
   }
-  function clampDateToMin(){
-    if (dateEl.value && dateEl.value < minDate) dateEl.value = minDate;
+
+  function ymdToDate(ymd){
+    const [y,m,d] = ymd.split("-").map(Number);
+    return new Date(y, m-1, d);
   }
+
+  function formatNice(ymd){
+    const d = ymdToDate(ymd);
+    // Tue, 12 Mar
+    const opt = { weekday:"short", day:"2-digit", month:"short" };
+    return d.toLocaleDateString("en-NZ", opt);
+  }
+
+  function ensureDateSelected(){
+    // if empty or < minDate, set to minDate
+    if (!dateHidden.value || dateHidden.value < minDate) {
+      dateHidden.value = minDate;
+    }
+  }
+
+  function openDateModal(){
+    dateModal.classList.add("open");
+    dateModal.setAttribute("aria-hidden","false");
+  }
+  function closeDateModal(){
+    dateModal.classList.remove("open");
+    dateModal.setAttribute("aria-hidden","true");
+  }
+
+  function refreshDateUI(){
+    // trigger text
+    if (dateHidden.value) {
+      dateTriggerText.textContent = formatNice(dateHidden.value);
+    } else {
+      dateTriggerText.textContent = "Select a date";
+    }
+
+    // build grid (show some past disabled dates + future dates)
+    dateGrid.innerHTML = "";
+
+    const now = new Date();
+    const start = addDays(now, -SHOW_PAST_DAYS);
+    const end = addDays(now, SHOW_FUTURE_DAYS);
+
+    const selected = dateHidden.value;
+
+    for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+      const ymd = localYMD(d);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "date-btn";
+      btn.dataset.value = ymd;
+
+      const line1 = document.createElement("div");
+      line1.className = "d1";
+      line1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
+
+      const line2 = document.createElement("div");
+      line2.className = "d2";
+      line2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
+
+      btn.appendChild(line1);
+      btn.appendChild(line2);
+
+      const disabled = (ymd < minDate);
+      if (disabled) {
+        btn.classList.add("disabled");
+        btn.setAttribute("aria-disabled","true");
+      } else {
+        btn.addEventListener("click", () => {
+          dateHidden.value = ymd;
+          refreshDateUI();
+          refreshTimes();
+          closeDateModal();
+        });
+      }
+
+      if (ymd === selected) btn.classList.add("selected");
+
+      dateGrid.appendChild(btn);
+    }
+  }
+
+  dateTrigger.addEventListener("click", () => {
+    refreshMinDate();
+    ensureDateSelected();
+    refreshDateUI();
+    openDateModal();
+  });
+
+  dateModal.addEventListener("click", (e) => {
+    const t = e.target;
+    if (t && t.getAttribute && t.getAttribute("data-date-close") === "1") closeDateModal();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (dateModal.classList.contains("open")) closeDateModal();
+    }
+  });
 
   /* =========================
      TIME SLOTS
@@ -866,7 +1146,7 @@
   }
 
   function refreshTimes(){
-    const d = dateEl.value;
+    const d = dateHidden.value;
     if (!d) return;
 
     const now = new Date();
@@ -1015,17 +1295,6 @@
   /* =========================
      EVENTS
   ========================== */
-  dateEl.addEventListener("input", () => {
-    refreshMinDate();
-    clampDateToMin();
-    refreshTimes();
-  });
-  dateEl.addEventListener("change", () => {
-    refreshMinDate();
-    clampDateToMin();
-    refreshTimes();
-  });
-
   guestsEl.addEventListener("change", () => {
     if (guestsEl.value === "8+") {
       alert("For 8+ guests, please contact us to confirm availability.");
@@ -1039,7 +1308,10 @@
     for (const f of flavours) flavourState[f] = 0;
     syncFlavoursField();
     renderFlavours();
+
     refreshMinDate();
+    ensureDateSelected();
+    refreshDateUI();
     refreshTimes();
     selectTime("");
   });
@@ -1050,17 +1322,19 @@
   let pendingSubmit = false;
 
   form.addEventListener("submit", (e) => {
-    if (!timeEl.value) {
+    // Must have date + time
+    refreshMinDate();
+    ensureDateSelected();
+
+    if (!dateHidden.value) {
       e.preventDefault();
-      show(bad, "Please select a time.");
+      show(bad, "Please select a date.");
       return;
     }
 
-    refreshMinDate();
-    clampDateToMin();
-    if (!dateEl.value){
+    if (!timeEl.value) {
       e.preventDefault();
-      show(bad, "Please select a date.");
+      show(bad, "Please select a time.");
       return;
     }
 
@@ -1109,7 +1383,6 @@
   function openModal(){
     diyInfoModal.classList.add("open");
     diyInfoModal.setAttribute("aria-hidden", "false");
-    // ✅ do NOT lock body on touch devices (prevents iOS scroll issues)
     if (!isTouchDevice()) document.body.style.overflow = "hidden";
   }
 
@@ -1135,10 +1408,12 @@
   ========================== */
   syncFlavoursField();
   renderFlavours();
+
   refreshMinDate();
+  ensureDateSelected();
+  refreshDateUI();
   refreshTimes();
 </script>
 
 </body>
 </html>
-
