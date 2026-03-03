@@ -768,7 +768,18 @@
                 <option>5</option><option>6</option><option>7</option><option>8</option>
                 <option value="8+">8+</option>
               </select>
+
+              <label>Total</label>
+              <div class="pill has-call" style="width:100%; margin: 0; justify-content:space-between;">
+              <span><strong id="totalPrice">$0</strong></span>
+              <button type="button" class="call" id="payBtn" disabled>Pay now</button>
+</div>
+
+<label>Payment reference</label>
+<input name="payment_ref" id="payment_ref"
+  placeholder="After payment, paste your Stripe reference here" />
             </div>
+            
           </div>
 
           <!-- Flavours -->
@@ -1326,6 +1337,16 @@
     refreshMinDate();
     ensureDateSelected();
 
+    // 强制必须填写 payment reference
+if (guestsEl.value && guestsEl.value !== "8+") {
+  const ref = (payRefEl?.value || "").trim();
+  if (!ref) {
+    e.preventDefault();
+    show(bad, "Please pay first, then paste your Payment reference.");
+    return;
+  }
+}
+    
     if (!dateHidden.value) {
       e.preventDefault();
       show(bad, "Please select a date.");
@@ -1413,8 +1434,82 @@
   ensureDateSelected();
   refreshDateUI();
   refreshTimes();
+
+  /* =========================
+   STRIPE PAYMENT LOGIC
+========================== */
+
+const totalPriceEl = document.getElementById("totalPrice");
+const payBtn = document.getElementById("payBtn");
+const payRefEl = document.getElementById("payment_ref");
+
+// 你提供的 Stripe test links
+const PAY_LINKS = {
+  1: "https://buy.stripe.com/test_bJefZi9ZhbNv5GF4r75os00",
+  2: "https://buy.stripe.com/test_8x23cw1sL8Bjgljg9P5os01",
+  3: "https://buy.stripe.com/test_6oU4gA5J17xf7ONcXD5os02",
+  4: "https://buy.stripe.com/test_6oU7sM1sLdVD0ml2iZ5os03",
+  5: "https://buy.stripe.com/test_dRm5kEc7paJr7ON2iZ5os04",
+  6: "https://buy.stripe.com/test_14A8wQ8Vd4l3fhff5L5os05",
+  7: "https://buy.stripe.com/test_14A6oI9Zh6tb9WV6zf5os06",
+  8: "https://buy.stripe.com/test_7sYfZignF5p74CB3n35os07"
+};
+
+function calcPrice(guestsValue){
+  if (!guestsValue) return null;
+  if (guestsValue === "8+") return null;
+  const n = Number(guestsValue);
+  if (!Number.isFinite(n)) return null;
+  if (n === 1) return 58;
+  if (n === 2) return 100;
+  if (n >= 3) return 50 * n;
+  return null;
+}
+
+function updatePaymentUI(){
+  const v = guestsEl.value;
+
+  payBtn.disabled = true;
+  totalPriceEl.textContent = "$0";
+
+  if (!v) return;
+
+  if (v === "8+") {
+    totalPriceEl.textContent = "Contact us";
+    return;
+  }
+
+  const n = Number(v);
+  const price = calcPrice(v);
+  totalPriceEl.textContent = `$${price}`;
+
+  payBtn.disabled = !PAY_LINKS[n];
+}
+
+guestsEl.addEventListener("change", () => {
+  updatePaymentUI();
+  if (payRefEl) payRefEl.value = "";
+});
+
+updatePaymentUI();
+
+payBtn.addEventListener("click", () => {
+  const v = guestsEl.value;
+  if (!v || v === "8+") return;
+
+  const n = Number(v);
+  const link = PAY_LINKS[n];
+
+  if (!link) {
+    alert("Payment link not set.");
+    return;
+  }
+
+  window.open(link, "_blank");
+});
 </script>
 
 </body>
 </html>
+
 
