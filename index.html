@@ -29,7 +29,6 @@
       overflow-x:hidden;
     }
 
-    /* Background image */
     body::before{
       content:"";
       position:fixed;
@@ -62,7 +61,6 @@
       border: 1px solid var(--stroke);
     }
 
-    /* Top brand */
     .brand{
       font-size: 28px;
       letter-spacing: .26em;
@@ -89,7 +87,6 @@
       line-height:1.5;
     }
 
-    /* “menu-like” pills */
     .info{
       margin-top: 18px;
       display:grid;
@@ -134,7 +131,6 @@
       white-space:nowrap;
     }
 
-    /* View switch */
     .view{ display:none; }
     .view.active{ display:block; }
 
@@ -155,7 +151,6 @@
       cursor:pointer;
     }
 
-    /* Landing cards */
     .landing-grid{
       margin-top: 22px;
       display:grid;
@@ -246,7 +241,6 @@
       border:1px solid rgba(0,0,0,.06);
     }
 
-    /* DIY form */
     form{ margin-top: 14px; }
     .grid{
       display:grid;
@@ -298,8 +292,18 @@
     }
     .ok{ background:#e7f7ee; color:#1c6f48; }
     .bad{ background:#ffecec; color:#8b1a1a; }
+    .info-toast{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(201,168,106,.35);
+      background: rgba(201,168,106,.10);
+      color: rgba(120,86,30,.95);
+      font-size: 13px;
+      line-height: 1.5;
+      display:none;
+    }
 
-    /* Time buttons */
     .time-grid{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
@@ -326,7 +330,6 @@
       cursor:not-allowed;
     }
 
-    /* Flavours */
     .flavour-grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -387,7 +390,6 @@
       color: rgba(15,61,46,.55);
     }
 
-    /* ===== Date Picker (custom, fixes mobile overflow + grey disabled) ===== */
     .date-trigger{
       width:100%;
       border-radius: 16px;
@@ -526,7 +528,6 @@
       color: rgba(0,0,0,.35);
     }
 
-    /* ===== Modal (DIY Info) ===== */
     .modal{
       position: fixed;
       inset: 0;
@@ -546,13 +547,11 @@
       position: relative;
       width: min(880px, calc(100% - 24px));
       margin: 40px auto;
-
       background: rgba(255,255,255,.96);
       border: 1px solid rgba(201,168,106,.25);
       border-radius: 22px;
       box-shadow: 0 30px 120px rgba(0,0,0,.35);
       overflow: hidden;
-
       max-height: calc(100dvh - 24px);
       display: flex;
       flex-direction: column;
@@ -699,10 +698,8 @@
         </div>
       </div>
 
-      <!-- ============ LANDING ============ -->
       <section id="homeView" class="view active" aria-label="Home">
         <div class="landing-grid">
-          <!-- DIY card -->
           <article class="tile">
             <div class="hero" style="background-image:url('images/diy.jpg');background-position: 60% 70%;"></div>
             <div class="tile-body">
@@ -718,7 +715,6 @@
             </div>
           </article>
 
-          <!-- Buffet card -->
           <article class="tile">
             <div class="hero" style="background-image:url('images/buffet.jpg');background-position: 70% 80%;"></div>
             <div class="tile-body">
@@ -735,15 +731,18 @@
         </div>
       </section>
 
-      <!-- ============ DIY ============ -->
       <section id="diyView" class="view" aria-label="DIY booking">
         <div class="top-actions">
           <button class="back" id="backHome" type="button">← Back</button>
         </div>
 
-        <p class="sub" style="margin-top:6px;">Submit a request and we’ll confirm your booking shortly.</p>
+        <p class="sub" style="margin-top:6px;">Submit your details, then complete payment to confirm automatically.</p>
 
-        <form id="form" method="POST" target="hidden_iframe">
+        <div class="info-toast" id="paidToast">
+          Payment received. Your booking is being confirmed automatically. Please check your email shortly.
+        </div>
+
+        <form id="form" novalidate>
           <div class="grid">
             <div>
               <label>Name</label>
@@ -768,21 +767,9 @@
                 <option>5</option><option>6</option><option>7</option><option>8</option>
                 <option value="8+">8+</option>
               </select>
-
-              <label>Total</label>
-              <div class="pill has-call" style="width:100%; margin: 0; justify-content:space-between;">
-              <span><strong id="totalPrice">$0</strong></span>
-              <button type="button" class="call" id="payBtn" disabled>Pay now</button>
-</div>
-
-<label>Payment reference</label>
-<input name="payment_ref" id="payment_ref"
-  placeholder="After payment, paste your Stripe reference here" />
             </div>
-            
           </div>
 
-          <!-- Flavours -->
           <div style="margin-top:10px;">
             <label>Flavours (max = guests)</label>
             <div id="flavourGrid" class="flavour-grid"></div>
@@ -794,14 +781,12 @@
             <div>
               <label>Date</label>
 
-              <!-- Visible trigger -->
               <button type="button" class="date-trigger" id="dateTrigger" aria-haspopup="dialog" aria-controls="dateModal">
                 <span id="dateTriggerText">Select a date</span>
                 <span class="muted" id="dateRuleText"></span>
                 <span class="chev" aria-hidden="true"></span>
               </button>
 
-              <!-- Hidden input for form submit -->
               <input type="hidden" name="date" id="date" required />
             </div>
 
@@ -817,19 +802,20 @@
           <label>Notes</label>
           <textarea name="notes" placeholder="Allergies, birthday message, pram/high chair..."></textarea>
 
-          <button class="submit" id="btn" type="submit">Request a booking</button>
+          <label>Total</label>
+          <div class="pill has-call" style="width:100%; margin:0; justify-content:space-between;">
+            <span><strong id="totalPrice">$0</strong></span>
+            <button type="button" class="call" id="payBtn" disabled>Pay now</button>
+          </div>
 
-          <div class="toast ok" id="ok">Submitted! We’ll confirm shortly.</div>
+          <div class="toast ok" id="ok">Ready to pay.</div>
           <div class="toast bad" id="bad"></div>
         </form>
-
-        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
       </section>
 
     </div>
   </div>
 
-  <!-- ===== DATE PICKER MODAL ===== -->
   <div class="date-modal" id="dateModal" aria-hidden="true">
     <div class="date-backdrop" data-date-close="1"></div>
     <div class="date-card" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle">
@@ -843,7 +829,6 @@
     </div>
   </div>
 
-  <!-- ===== DIY INFO MODAL ===== -->
   <div class="modal" id="diyInfoModal" aria-hidden="true">
     <div class="modal-backdrop" data-close="1"></div>
 
@@ -907,31 +892,21 @@
   </div>
 
 <script>
-  /* =========================
-     CONFIG
-  ========================== */
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
-
-  // booking slots: 10:00–18:00 (10am–6pm)
   const OPEN_HOURS = { start: "10:30", end: "18:00" };
   const SLOT_MINUTES = 30;
-
-  // 3pm rule
-  const CUT_OFF_HOUR = 15; // 3pm
-
-  // date list range (show some disabled past dates for grey effect)
+  const CUT_OFF_HOUR = 15;
   const SHOW_PAST_DAYS = 7;
   const SHOW_FUTURE_DAYS = 45;
 
-  /* =========================
-     VIEW ROUTER
-  ========================== */
+  // ✅ 改成你的 Worker 域名
+  const WORKER_BASE_URL = "https://你的-worker域名.workers.dev";
+
   const homeView = document.getElementById("homeView");
   const diyView = document.getElementById("diyView");
   const pageSub = document.getElementById("pageSub");
-
   const goDIY = document.getElementById("goDIY");
   const backHome = document.getElementById("backHome");
+  const paidToast = document.getElementById("paidToast");
 
   function setView(hash){
     const h = (hash || location.hash || "#home").toLowerCase();
@@ -940,7 +915,7 @@
     diyView.classList.toggle("active", isDIY);
 
     pageSub.textContent = isDIY
-      ? "Submit a request and we’ll confirm your booking shortly."
+      ? "Submit your details, then complete payment to confirm automatically."
       : "Choose a booking type below.";
 
     if (isDIY) {
@@ -956,15 +931,10 @@
   window.addEventListener("hashchange", () => setView());
   setView();
 
-  /* =========================
-     DIY ELEMENTS
-  ========================== */
   const $ = (id) => document.getElementById(id);
 
   const form = $("form");
-  const iframe = $("hidden_iframe");
 
-  // date (custom)
   const dateHidden = $("date");
   const dateTrigger = $("dateTrigger");
   const dateTriggerText = $("dateTriggerText");
@@ -972,37 +942,33 @@
   const dateModal = $("dateModal");
   const dateGrid = $("dateGrid");
 
-  // time
   const timeEl = $("time");
   const timeGrid = $("timeGrid");
 
-  // other
-  const btn = $("btn");
   const ok = $("ok");
   const bad = $("bad");
   const guestsEl = $("guests");
 
-  // flavours
   const flavourGrid = $("flavourGrid");
   const flavoursInput = $("flavours");
   const flavourHint = $("flavourHint");
 
-  form.action = SCRIPT_URL;
+  const totalPriceEl = $("totalPrice");
+  const payBtn = $("payBtn");
 
-  /* =========================
-     DATE (3pm rule + custom date picker)
-  ========================== */
   function localYMD(d = new Date()){
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   }
+
   function addDays(d, n){
     const x = new Date(d);
     x.setDate(x.getDate() + n);
     return x;
   }
+
   function calcMinDateBy3pmRule(now = new Date()){
     const afterCutoff = (now.getHours() >= CUT_OFF_HOUR);
     const min = addDays(now, afterCutoff ? 2 : 1);
@@ -1013,7 +979,6 @@
 
   function refreshMinDate(){
     minDate = calcMinDateBy3pmRule();
-    // show rule text
     const now = new Date();
     const afterCutoff = now.getHours() >= CUT_OFF_HOUR;
     dateRuleText.textContent = afterCutoff ? "After 3pm: from day after tomorrow" : "Before 3pm: from tomorrow";
@@ -1026,13 +991,11 @@
 
   function formatNice(ymd){
     const d = ymdToDate(ymd);
-    // Tue, 12 Mar
     const opt = { weekday:"short", day:"2-digit", month:"short" };
     return d.toLocaleDateString("en-NZ", opt);
   }
 
   function ensureDateSelected(){
-    // if empty or < minDate, set to minDate
     if (!dateHidden.value || dateHidden.value < minDate) {
       dateHidden.value = minDate;
     }
@@ -1048,20 +1011,12 @@
   }
 
   function refreshDateUI(){
-    // trigger text
-    if (dateHidden.value) {
-      dateTriggerText.textContent = formatNice(dateHidden.value);
-    } else {
-      dateTriggerText.textContent = "Select a date";
-    }
-
-    // build grid (show some past disabled dates + future dates)
+    dateTriggerText.textContent = dateHidden.value ? formatNice(dateHidden.value) : "Select a date";
     dateGrid.innerHTML = "";
 
     const now = new Date();
     const start = addDays(now, -SHOW_PAST_DAYS);
     const end = addDays(now, SHOW_FUTURE_DAYS);
-
     const selected = dateHidden.value;
 
     for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
@@ -1082,7 +1037,7 @@
       btn.appendChild(line1);
       btn.appendChild(line2);
 
-      const disabled = (ymd < minDate);
+      const disabled = ymd < minDate;
       if (disabled) {
         btn.classList.add("disabled");
         btn.setAttribute("aria-disabled","true");
@@ -1096,7 +1051,6 @@
       }
 
       if (ymd === selected) btn.classList.add("selected");
-
       dateGrid.appendChild(btn);
     }
   }
@@ -1113,15 +1067,6 @@
     if (t && t.getAttribute && t.getAttribute("data-date-close") === "1") closeDateModal();
   });
 
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (dateModal.classList.contains("open")) closeDateModal();
-    }
-  });
-
-  /* =========================
-     TIME SLOTS
-  ========================== */
   function toMinutes(t){
     const [h,m] = t.split(":").map(Number);
     return h*60 + m;
@@ -1199,9 +1144,6 @@
     selectTime("");
   }
 
-  /* =========================
-     FLAVOURS (max = guests)
-  ========================== */
   const flavours = [
     "Strawberry",
     "Blueberry",
@@ -1216,7 +1158,7 @@
   function guestsMax(){
     const v = guestsEl.value;
     if (!v) return 0;
-    if (v === "8+") return 0; // disable flavours
+    if (v === "8+") return 0;
     return Number(v) || 0;
   }
 
@@ -1303,9 +1245,34 @@
     }
   }
 
-  /* =========================
-     EVENTS
-  ========================== */
+  function calcPrice(guestsValue){
+    if (!guestsValue) return null;
+    if (guestsValue === "8+") return null;
+    const n = Number(guestsValue);
+    if (!Number.isFinite(n)) return null;
+    if (n === 1) return 58;
+    if (n === 2) return 100;
+    if (n >= 3) return 50 * n;
+    return null;
+  }
+
+  function updatePaymentUI(){
+    const v = guestsEl.value;
+    payBtn.disabled = true;
+    totalPriceEl.textContent = "$0";
+
+    if (!v) return;
+
+    if (v === "8+"){
+      totalPriceEl.textContent = "Contact us";
+      return;
+    }
+
+    const price = calcPrice(v);
+    totalPriceEl.textContent = `$${price}`;
+    payBtn.disabled = false;
+  }
+
   guestsEl.addEventListener("change", () => {
     if (guestsEl.value === "8+") {
       alert("For 8+ guests, please contact us to confirm availability.");
@@ -1313,93 +1280,95 @@
     for (const f of flavours) flavourState[f] = 0;
     syncFlavoursField();
     renderFlavours();
+    updatePaymentUI();
   });
 
   form.addEventListener("reset", () => {
     for (const f of flavours) flavourState[f] = 0;
     syncFlavoursField();
     renderFlavours();
-
     refreshMinDate();
     ensureDateSelected();
     refreshDateUI();
     refreshTimes();
     selectTime("");
+    updatePaymentUI();
   });
 
-  /* =========================
-     SUBMIT (iframe)
-  ========================== */
-  let pendingSubmit = false;
+  payBtn.addEventListener("click", async () => {
+    const selectedDate = dateHidden.value;
 
-  form.addEventListener("submit", (e) => {
-    // Must have date + time
-    refreshMinDate();
-    ensureDateSelected();
-
-    // 强制必须填写 payment reference
-if (guestsEl.value && guestsEl.value !== "8+") {
-  const ref = (payRefEl?.value || "").trim();
-  if (!ref) {
-    e.preventDefault();
-    show(bad, "Please pay first, then paste your Payment reference.");
-    return;
-  }
-}
-    
-    if (!dateHidden.value) {
-      e.preventDefault();
-      show(bad, "Please select a date.");
+    if (!form.elements["name"]?.value?.trim()) {
+      show(bad, "Please enter your name first.");
       return;
     }
-
+    if (!form.elements["phone"]?.value?.trim()) {
+      show(bad, "Please enter your phone number first.");
+      return;
+    }
+    if (!guestsEl.value || guestsEl.value === "8+") {
+      show(bad, "Please select a valid guest number first.");
+      return;
+    }
+    if (!selectedDate) {
+      show(bad, "Please select a date first.");
+      return;
+    }
     if (!timeEl.value) {
-      e.preventDefault();
-      show(bad, "Please select a time.");
+      show(bad, "Please select a time first.");
       return;
     }
 
-    if (!SCRIPT_URL.includes("script.google.com/macros/s/") || !SCRIPT_URL.endsWith("/exec")) {
-      e.preventDefault();
-      show(bad, "SCRIPT_URL is not set. Please paste your Apps Script /exec URL.");
-      return;
+    const payload = {
+      name: form.elements["name"]?.value?.trim() || "",
+      phone: form.elements["phone"]?.value?.trim() || "",
+      email: form.elements["email"]?.value?.trim() || "",
+      guests: guestsEl.value || "",
+      flavours: flavoursInput?.value || "",
+      date: selectedDate,
+      time: timeEl.value || "",
+      notes: form.elements["notes"]?.value?.trim() || ""
+    };
+
+    try {
+      ok.style.display = "none";
+      bad.style.display = "none";
+      payBtn.disabled = true;
+      payBtn.textContent = "Loading...";
+
+      const res = await fetch(`${WORKER_BASE_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok || !data.url) {
+        show(bad, data.error || "Could not start payment.");
+        payBtn.disabled = false;
+        payBtn.textContent = "Pay now";
+        return;
+      }
+
+      window.location.href = data.url;
+
+    } catch (err) {
+      console.error(err);
+      show(bad, "Could not connect to payment service.");
+      payBtn.disabled = false;
+      payBtn.textContent = "Pay now";
     }
-
-    ok.style.display = "none";
-    bad.style.display = "none";
-    btn.disabled = true;
-    btn.textContent = "Submitting...";
-    pendingSubmit = true;
-
-    setTimeout(() => {
-      if (!pendingSubmit) return;
-      pendingSubmit = false;
-      btn.disabled = false;
-      btn.textContent = "Request a booking";
-      show(bad, "Submitted, but no confirmation returned. Please check your Sheet or Apps Script deployment.");
-    }, 12000);
   });
-
-  iframe.addEventListener("load", () => {
-    if (!pendingSubmit) return;
-    pendingSubmit = false;
-
-    btn.disabled = false;
-    btn.textContent = "Request a booking";
-    show(ok, "Submitted! We’ll confirm shortly.");
-
-    form.reset();
-  });
-
-  /* =========================
-     DIY INFO MODAL (mobile scroll fixed)
-  ========================== */
-  const openDIYInfo = document.getElementById("openDIYInfo");
-  const diyInfoModal = document.getElementById("diyInfoModal");
 
   function isTouchDevice(){
     return window.matchMedia("(pointer: coarse)").matches;
   }
+
+  const openDIYInfo = document.getElementById("openDIYInfo");
+  const diyInfoModal = document.getElementById("diyInfoModal");
 
   function openModal(){
     diyInfoModal.classList.add("open");
@@ -1421,95 +1390,33 @@ if (guestsEl.value && guestsEl.value !== "8+") {
   });
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && diyInfoModal.classList.contains("open")) closeModal();
+    if (e.key === "Escape") {
+      if (diyInfoModal.classList.contains("open")) closeModal();
+      if (dateModal.classList.contains("open")) closeDateModal();
+    }
   });
 
-  /* =========================
-     INIT
-  ========================== */
+  function handlePaidReturn(){
+    const params = new URLSearchParams(window.location.search);
+    const paid = params.get("paid");
+
+    if (paid === "1") {
+      paidToast.style.display = "block";
+      location.hash = "#diy";
+      setView("#diy");
+      history.replaceState({}, "", `${window.location.pathname}#diy`);
+    }
+  }
+
   syncFlavoursField();
   renderFlavours();
-
   refreshMinDate();
   ensureDateSelected();
   refreshDateUI();
   refreshTimes();
-
-  /* =========================
-   STRIPE PAYMENT LOGIC
-========================== */
-
-const totalPriceEl = document.getElementById("totalPrice");
-const payBtn = document.getElementById("payBtn");
-const payRefEl = document.getElementById("payment_ref");
-
-// 你提供的 Stripe test links
-const PAY_LINKS = {
-  1: "https://buy.stripe.com/test_bJefZi9ZhbNv5GF4r75os00",
-  2: "https://buy.stripe.com/test_8x23cw1sL8Bjgljg9P5os01",
-  3: "https://buy.stripe.com/test_6oU4gA5J17xf7ONcXD5os02",
-  4: "https://buy.stripe.com/test_6oU7sM1sLdVD0ml2iZ5os03",
-  5: "https://buy.stripe.com/test_dRm5kEc7paJr7ON2iZ5os04",
-  6: "https://buy.stripe.com/test_14A8wQ8Vd4l3fhff5L5os05",
-  7: "https://buy.stripe.com/test_14A6oI9Zh6tb9WV6zf5os06",
-  8: "https://buy.stripe.com/test_7sYfZignF5p74CB3n35os07"
-};
-
-function calcPrice(guestsValue){
-  if (!guestsValue) return null;
-  if (guestsValue === "8+") return null;
-  const n = Number(guestsValue);
-  if (!Number.isFinite(n)) return null;
-  if (n === 1) return 58;
-  if (n === 2) return 100;
-  if (n >= 3) return 50 * n;
-  return null;
-}
-
-function updatePaymentUI(){
-  const v = guestsEl.value;
-
-  payBtn.disabled = true;
-  totalPriceEl.textContent = "$0";
-
-  if (!v) return;
-
-  if (v === "8+") {
-    totalPriceEl.textContent = "Contact us";
-    return;
-  }
-
-  const n = Number(v);
-  const price = calcPrice(v);
-  totalPriceEl.textContent = `$${price}`;
-
-  payBtn.disabled = !PAY_LINKS[n];
-}
-
-guestsEl.addEventListener("change", () => {
   updatePaymentUI();
-  if (payRefEl) payRefEl.value = "";
-});
-
-updatePaymentUI();
-
-payBtn.addEventListener("click", () => {
-  const v = guestsEl.value;
-  if (!v || v === "8+") return;
-
-  const n = Number(v);
-  const link = PAY_LINKS[n];
-
-  if (!link) {
-    alert("Payment link not set.");
-    return;
-  }
-
-  window.open(link, "_blank");
-});
+  handlePaidReturn();
 </script>
 
 </body>
 </html>
-
-
