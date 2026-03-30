@@ -1596,39 +1596,24 @@
   }
 
   async function submitBuffetFreeBooking(payload) {
-    try {
-      const res = await fetch(APPS_SCRIPT_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          api_key: "PROMO_DIRECT_BOOKING",
-          session_id: `promo_${Date.now()}`,
-          payment_status: "promo_free",
-          amount_total: 0,
-          customer_email: payload.email || "",
-          type: "buffet",
-          name: payload.name || "",
-          phone: payload.phone || "",
-          email: payload.email || "",
-          guests: payload.guests || "",
-          flavours: "",
-          date: payload.date || "",
-          time: payload.time || "",
-          notes: payload.notes || "",
-          dining_notice_agreed: "true",
-          booking_status: "confirmed",
-          promo_code: (buffetPromoCodeEl?.value || "").trim()
-        })
-      });
+  try {
+    const res = await fetch(`${WORKER_BASE_URL}/promo-buffet-booking`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...payload,
+        promo_code: (buffetPromoCodeEl?.value || "").trim()
+      })
+    });
 
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return { ok: false, error: String(err) };
   }
+}
 
   guestsEl.addEventListener("change", () => {
     if (guestsEl.value === "8+") {
