@@ -266,23 +266,6 @@
     }
     textarea{ min-height: 96px; resize: vertical; }
 
-    .submit{
-      margin-top: 18px;
-      width:100%;
-      border:0;
-      border-radius: 18px;
-      padding: 15px;
-      font-size: 16px;
-      font-weight: 950;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color:#fff;
-      cursor:pointer;
-      transition:.15s;
-    }
-    .submit:disabled{ opacity:.6; cursor:not-allowed; }
-
     .toast{
       margin-top: 12px;
       padding: 12px;
@@ -383,11 +366,42 @@
     }
     .tri.up{ border-bottom:9px solid rgba(15,61,46,.80); }
     .tri.down{ border-top:9px solid rgba(15,61,46,.80); }
-
     .flavour-hint{
       margin-top:8px;
       font-size:12px;
       color: rgba(15,61,46,.55);
+    }
+
+    .notice-box{
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      border-radius:16px;
+      padding:14px;
+    }
+    .notice-list p{
+      margin:0 0 8px;
+      font-weight:800;
+      color: rgba(15,61,46,.88);
+    }
+    .notice-list ul{
+      margin:0;
+      padding-left:18px;
+      color: rgba(22,34,28,.80);
+      line-height:1.55;
+      font-size:14px;
+    }
+    .consent-row{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      margin-top:12px;
+      font-size:14px;
+      font-weight:700;
+      color: rgba(15,61,46,.88);
+    }
+    .consent-row input{
+      width:auto;
+      margin-top:2px;
     }
 
     .date-trigger{
@@ -721,10 +735,10 @@
               <div class="kicker">DINING</div>
               <h2 class="tile-title">Buffet</h2>
               <p class="tile-text">
-                Our buffet booking will be available soon. Please check back later for updates.
+                Reserve your buffet dining experience. Select your date and time, then complete payment to confirm.
               </p>
               <div class="tile-actions">
-                <button class="btn disabled" type="button" disabled>Coming soon</button>
+                <button class="btn primary" id="goBuffet" type="button">Book Buffet</button>
               </div>
             </div>
           </article>
@@ -813,6 +827,100 @@
         </form>
       </section>
 
+      <section id="buffetView" class="view" aria-label="Buffet booking">
+        <div class="top-actions">
+          <button class="back" id="backHomeFromBuffet" type="button">← Back</button>
+        </div>
+
+        <p class="sub" style="margin-top:6px;">Submit your details, then complete payment to confirm automatically.</p>
+
+        <div class="info-toast" id="buffetPaidToast">
+          Payment received. Your buffet booking is being confirmed automatically. Please check your email shortly.
+        </div>
+
+        <form id="buffetForm" novalidate>
+          <div class="grid">
+            <div>
+              <label>Name</label>
+              <input name="name" required autocomplete="name" />
+            </div>
+            <div>
+              <label>Phone</label>
+              <input name="phone" required autocomplete="tel" />
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label>Email (optional)</label>
+              <input name="email" type="email" autocomplete="email" />
+            </div>
+            <div>
+              <label>Guests</label>
+              <select name="guests" id="buffetGuests" required>
+                <option value="">Select</option>
+                <option>1</option><option>2</option><option>3</option><option>4</option>
+                <option>5</option><option>6</option><option>7</option><option>8</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>Dining Notice</label>
+            <div class="notice-box">
+              <div class="notice-list">
+                <p>Please read before booking:</p>
+                <ul>
+                  <li>Buffet seating is time-based and subject to availability.</li>
+                  <li>Late arrivals may reduce dining time.</li>
+                  <li>Food waste may incur an additional charge.</li>
+                  <li>Please inform us of allergies in Notes before payment.</li>
+                </ul>
+              </div>
+
+              <label class="consent-row">
+                <input type="checkbox" id="buffetConsent" />
+                <span>I have read and agree to the dining notice.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label>Date</label>
+
+              <button type="button" class="date-trigger" id="buffetDateTrigger" aria-haspopup="dialog" aria-controls="buffetDateModal">
+                <span id="buffetDateTriggerText">Select a date</span>
+                <span class="muted" id="buffetDateRuleText"></span>
+                <span class="chev" aria-hidden="true"></span>
+              </button>
+
+              <input type="hidden" name="date" id="buffetDate" required />
+            </div>
+
+            <div>
+              <label>Time</label>
+              <div id="buffetTimeGrid" class="time-grid"></div>
+              <select name="time" id="buffetTime" required hidden>
+                <option value="">Select</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Notes</label>
+          <textarea name="notes" placeholder="Allergies, seating requests, special requests..."></textarea>
+
+          <label>Total</label>
+          <div class="pill has-call" style="width:100%; margin:0; justify-content:space-between;">
+            <span><strong id="buffetTotalPrice">$0</strong></span>
+            <button type="button" class="call" id="buffetPayBtn" disabled>Pay now</button>
+          </div>
+
+          <div class="toast ok" id="buffetOk">Ready to pay.</div>
+          <div class="toast bad" id="buffetBad"></div>
+        </form>
+      </section>
+
     </div>
   </div>
 
@@ -825,6 +933,19 @@
       </div>
       <div class="date-body">
         <div class="date-grid" id="dateGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="date-modal" id="buffetDateModal" aria-hidden="true">
+    <div class="date-backdrop" data-buffet-date-close="1"></div>
+    <div class="date-card" role="dialog" aria-modal="true" aria-labelledby="buffetDateModalTitle">
+      <div class="date-head">
+        <h3 class="date-title" id="buffetDateModalTitle">Select a date</h3>
+        <button class="date-x" type="button" aria-label="Close" data-buffet-date-close="1">✕</button>
+      </div>
+      <div class="date-body">
+        <div class="date-grid" id="buffetDateGrid"></div>
       </div>
     </div>
   </div>
@@ -898,63 +1019,90 @@
   const SHOW_PAST_DAYS = 7;
   const SHOW_FUTURE_DAYS = 45;
 
-  // ✅ 改成你的 Worker 域名
   const WORKER_BASE_URL = "https://maggie-booking-webhook.xyt-000601.workers.dev";
+  const APPS_SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
   const homeView = document.getElementById("homeView");
   const diyView = document.getElementById("diyView");
+  const buffetView = document.getElementById("buffetView");
   const pageSub = document.getElementById("pageSub");
+
   const goDIY = document.getElementById("goDIY");
+  const goBuffet = document.getElementById("goBuffet");
   const backHome = document.getElementById("backHome");
+  const backHomeFromBuffet = document.getElementById("backHomeFromBuffet");
   const paidToast = document.getElementById("paidToast");
+  const buffetPaidToast = document.getElementById("buffetPaidToast");
 
   function setView(hash){
     const h = (hash || location.hash || "#home").toLowerCase();
     const isDIY = h === "#diy";
-    homeView.classList.toggle("active", !isDIY);
-    diyView.classList.toggle("active", isDIY);
+    const isBuffet = h === "#buffet";
 
-    pageSub.textContent = isDIY
-      ? "Submit your details, then complete payment to confirm automatically."
-      : "Choose a booking type below.";
+    homeView.classList.toggle("active", !isDIY && !isBuffet);
+    diyView.classList.toggle("active", isDIY);
+    buffetView.classList.toggle("active", isBuffet);
 
     if (isDIY) {
+      pageSub.textContent = "Submit your details, then complete payment to confirm automatically.";
       refreshMinDate();
       ensureDateSelected();
       refreshDateUI();
       refreshTimes();
+    } else if (isBuffet) {
+      pageSub.textContent = "Submit your details, then complete payment to confirm automatically.";
+      refreshBuffetMinDate();
+      ensureBuffetDateSelected();
+      refreshBuffetDateUI();
+      refreshBuffetTimes();
+    } else {
+      pageSub.textContent = "Choose a booking type below.";
     }
   }
 
   goDIY.addEventListener("click", () => location.hash = "#diy");
+  goBuffet.addEventListener("click", () => location.hash = "#buffet");
   backHome.addEventListener("click", () => location.hash = "#home");
+  backHomeFromBuffet.addEventListener("click", () => location.hash = "#home");
+
   window.addEventListener("hashchange", () => setView());
   setView();
 
   const $ = (id) => document.getElementById(id);
 
   const form = $("form");
-
   const dateHidden = $("date");
   const dateTrigger = $("dateTrigger");
   const dateTriggerText = $("dateTriggerText");
   const dateRuleText = $("dateRuleText");
   const dateModal = $("dateModal");
   const dateGrid = $("dateGrid");
-
   const timeEl = $("time");
   const timeGrid = $("timeGrid");
-
   const ok = $("ok");
   const bad = $("bad");
   const guestsEl = $("guests");
-
   const flavourGrid = $("flavourGrid");
   const flavoursInput = $("flavours");
   const flavourHint = $("flavourHint");
-
   const totalPriceEl = $("totalPrice");
   const payBtn = $("payBtn");
+
+  const buffetForm = $("buffetForm");
+  const buffetDateHidden = $("buffetDate");
+  const buffetDateTrigger = $("buffetDateTrigger");
+  const buffetDateTriggerText = $("buffetDateTriggerText");
+  const buffetDateRuleText = $("buffetDateRuleText");
+  const buffetDateModal = $("buffetDateModal");
+  const buffetDateGrid = $("buffetDateGrid");
+  const buffetTimeEl = $("buffetTime");
+  const buffetTimeGrid = $("buffetTimeGrid");
+  const buffetOk = $("buffetOk");
+  const buffetBad = $("buffetBad");
+  const buffetGuestsEl = $("buffetGuests");
+  const buffetConsent = $("buffetConsent");
+  const buffetTotalPriceEl = $("buffetTotalPrice");
+  const buffetPayBtn = $("buffetPayBtn");
 
   function localYMD(d = new Date()){
     const y = d.getFullYear();
@@ -976,12 +1124,20 @@
   }
 
   let minDate = calcMinDateBy3pmRule();
+  let buffetMinDate = calcMinDateBy3pmRule();
 
   function refreshMinDate(){
     minDate = calcMinDateBy3pmRule();
     const now = new Date();
     const afterCutoff = now.getHours() >= CUT_OFF_HOUR;
     dateRuleText.textContent = afterCutoff ? "After 3pm: from day after tomorrow" : "Before 3pm: from tomorrow";
+  }
+
+  function refreshBuffetMinDate(){
+    buffetMinDate = calcMinDateBy3pmRule();
+    const now = new Date();
+    const afterCutoff = now.getHours() >= CUT_OFF_HOUR;
+    buffetDateRuleText.textContent = afterCutoff ? "After 3pm: from day after tomorrow" : "Before 3pm: from tomorrow";
   }
 
   function ymdToDate(ymd){
@@ -1001,6 +1157,12 @@
     }
   }
 
+  function ensureBuffetDateSelected(){
+    if (!buffetDateHidden.value || buffetDateHidden.value < buffetMinDate) {
+      buffetDateHidden.value = buffetMinDate;
+    }
+  }
+
   function openDateModal(){
     dateModal.classList.add("open");
     dateModal.setAttribute("aria-hidden","false");
@@ -1008,6 +1170,14 @@
   function closeDateModal(){
     dateModal.classList.remove("open");
     dateModal.setAttribute("aria-hidden","true");
+  }
+  function openBuffetDateModal(){
+    buffetDateModal.classList.add("open");
+    buffetDateModal.setAttribute("aria-hidden","false");
+  }
+  function closeBuffetDateModal(){
+    buffetDateModal.classList.remove("open");
+    buffetDateModal.setAttribute("aria-hidden","true");
   }
 
   function refreshDateUI(){
@@ -1055,6 +1225,51 @@
     }
   }
 
+  function refreshBuffetDateUI(){
+    buffetDateTriggerText.textContent = buffetDateHidden.value ? formatNice(buffetDateHidden.value) : "Select a date";
+    buffetDateGrid.innerHTML = "";
+
+    const now = new Date();
+    const start = addDays(now, -SHOW_PAST_DAYS);
+    const end = addDays(now, SHOW_FUTURE_DAYS);
+    const selected = buffetDateHidden.value;
+
+    for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+      const ymd = localYMD(d);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "date-btn";
+      btn.dataset.value = ymd;
+
+      const line1 = document.createElement("div");
+      line1.className = "d1";
+      line1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
+
+      const line2 = document.createElement("div");
+      line2.className = "d2";
+      line2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
+
+      btn.appendChild(line1);
+      btn.appendChild(line2);
+
+      const disabled = ymd < buffetMinDate;
+      if (disabled) {
+        btn.classList.add("disabled");
+        btn.setAttribute("aria-disabled","true");
+      } else {
+        btn.addEventListener("click", async () => {
+          buffetDateHidden.value = ymd;
+          refreshBuffetDateUI();
+          await refreshBuffetTimes();
+          closeBuffetDateModal();
+        });
+      }
+
+      if (ymd === selected) btn.classList.add("selected");
+      buffetDateGrid.appendChild(btn);
+    }
+  }
+
   dateTrigger.addEventListener("click", () => {
     refreshMinDate();
     ensureDateSelected();
@@ -1062,9 +1277,21 @@
     openDateModal();
   });
 
+  buffetDateTrigger.addEventListener("click", () => {
+    refreshBuffetMinDate();
+    ensureBuffetDateSelected();
+    refreshBuffetDateUI();
+    openBuffetDateModal();
+  });
+
   dateModal.addEventListener("click", (e) => {
     const t = e.target;
     if (t && t.getAttribute && t.getAttribute("data-date-close") === "1") closeDateModal();
+  });
+
+  buffetDateModal.addEventListener("click", (e) => {
+    const t = e.target;
+    if (t && t.getAttribute && t.getAttribute("data-buffet-date-close") === "1") closeBuffetDateModal();
   });
 
   function toMinutes(t){
@@ -1105,10 +1332,6 @@
     const d = dateHidden.value;
     if (!d) return;
 
-    const now = new Date();
-    const nowMinutes = now.getHours()*60 + now.getMinutes();
-    const today = localYMD(now);
-
     timeGrid.innerHTML = "";
     timeEl.innerHTML = "";
     const first = document.createElement("option");
@@ -1128,16 +1351,7 @@
       b.textContent = s;
       b.dataset.value = s;
 
-      const slotMinutes = toMinutes(s);
-      const disable = (d === today) && (slotMinutes < nowMinutes);
-
-      if (disable){
-        b.classList.add("disabled");
-        b.setAttribute("aria-disabled","true");
-      } else {
-        b.addEventListener("click", ()=> selectTime(s));
-      }
-
+      b.addEventListener("click", ()=> selectTime(s));
       timeGrid.appendChild(b);
     }
 
@@ -1273,6 +1487,99 @@
     payBtn.disabled = false;
   }
 
+  function buffetGuestsCount(){
+    const v = buffetGuestsEl.value;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function calcBuffetPrice(guestsValue){
+    if (!guestsValue) return null;
+    const n = Number(guestsValue);
+    if (!Number.isFinite(n)) return null;
+    return n * 58;
+  }
+
+  async function loadBuffetAvailability(dateYmd){
+    try {
+      const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.ok) return {};
+      return data.slots || {};
+    } catch (err) {
+      console.error("loadBuffetAvailability failed:", err);
+      return {};
+    }
+  }
+
+  function updateBuffetPaymentUI(){
+    const v = buffetGuestsEl.value;
+    const consented = buffetConsent.checked;
+
+    buffetPayBtn.disabled = true;
+    buffetTotalPriceEl.textContent = "$0";
+
+    if (!v) return;
+
+    const price = calcBuffetPrice(v);
+    buffetTotalPriceEl.textContent = `$${price}`;
+
+    if (consented && buffetDateHidden.value && buffetTimeEl.value) {
+      buffetPayBtn.disabled = false;
+    }
+  }
+
+  async function refreshBuffetTimes(){
+    const d = buffetDateHidden.value;
+    if (!d) return;
+
+    const availability = await loadBuffetAvailability(d);
+    const guests = buffetGuestsCount();
+
+    buffetTimeGrid.innerHTML = "";
+    buffetTimeEl.innerHTML = "";
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "Select";
+    buffetTimeEl.appendChild(first);
+
+    for (const s of buildSlots()){
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      buffetTimeEl.appendChild(opt);
+
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "time-btn";
+      b.textContent = s;
+      b.dataset.value = s;
+
+      const booked = Number(availability[s] || 0);
+      const overLimit = guests > 0 && (booked + guests > 8);
+
+      if (overLimit){
+        b.classList.add("disabled");
+        b.setAttribute("aria-disabled","true");
+        b.title = `Fully booked or exceeds capacity. Already booked: ${booked}/8`;
+      } else {
+        b.addEventListener("click", ()=> {
+          buffetTimeEl.value = s;
+          buffetTimeGrid.querySelectorAll(".time-btn").forEach(x => {
+            x.classList.toggle("selected", x.dataset.value === s);
+          });
+          updateBuffetPaymentUI();
+        });
+      }
+
+      buffetTimeGrid.appendChild(b);
+    }
+
+    buffetTimeEl.value = "";
+    updateBuffetPaymentUI();
+  }
+
   guestsEl.addEventListener("change", () => {
     if (guestsEl.value === "8+") {
       alert("For 8+ guests, please contact us to confirm availability.");
@@ -1281,6 +1588,15 @@
     syncFlavoursField();
     renderFlavours();
     updatePaymentUI();
+  });
+
+  buffetGuestsEl.addEventListener("change", async () => {
+    await refreshBuffetTimes();
+    updateBuffetPaymentUI();
+  });
+
+  buffetConsent.addEventListener("change", () => {
+    updateBuffetPaymentUI();
   });
 
   form.addEventListener("reset", () => {
@@ -1320,6 +1636,7 @@
     }
 
     const payload = {
+      type: "diy",
       name: form.elements["name"]?.value?.trim() || "",
       phone: form.elements["phone"]?.value?.trim() || "",
       email: form.elements["email"]?.value?.trim() || "",
@@ -1338,9 +1655,7 @@
 
       const res = await fetch(`${WORKER_BASE_URL}/create-checkout-session`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 
@@ -1354,12 +1669,91 @@
       }
 
       window.location.href = data.url;
-
     } catch (err) {
       console.error(err);
       show(bad, "Could not connect to payment service.");
       payBtn.disabled = false;
       payBtn.textContent = "Pay now";
+    }
+  });
+
+  buffetPayBtn.addEventListener("click", async () => {
+    const selectedDate = buffetDateHidden.value;
+
+    buffetOk.style.display = "none";
+    buffetBad.style.display = "none";
+
+    if (!buffetForm.elements["name"]?.value?.trim()) {
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Please enter your name first.";
+      return;
+    }
+    if (!buffetForm.elements["phone"]?.value?.trim()) {
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Please enter your phone number first.";
+      return;
+    }
+    if (!buffetGuestsEl.value) {
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Please select guests first.";
+      return;
+    }
+    if (!buffetConsent.checked) {
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Please agree to the dining notice first.";
+      return;
+    }
+    if (!selectedDate) {
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Please select a date first.";
+      return;
+    }
+    if (!buffetTimeEl.value) {
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Please select a time first.";
+      return;
+    }
+
+    const payload = {
+      type: "buffet",
+      name: buffetForm.elements["name"]?.value?.trim() || "",
+      phone: buffetForm.elements["phone"]?.value?.trim() || "",
+      email: buffetForm.elements["email"]?.value?.trim() || "",
+      guests: buffetGuestsEl.value || "",
+      flavours: "",
+      date: selectedDate,
+      time: buffetTimeEl.value || "",
+      notes: buffetForm.elements["notes"]?.value?.trim() || "",
+      dining_notice_agreed: true
+    };
+
+    try {
+      buffetPayBtn.disabled = true;
+      buffetPayBtn.textContent = "Loading...";
+
+      const res = await fetch(`${WORKER_BASE_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok || !data.url) {
+        buffetBad.style.display = "block";
+        buffetBad.textContent = data.error || "Could not start payment.";
+        buffetPayBtn.disabled = false;
+        buffetPayBtn.textContent = "Pay now";
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      console.error(err);
+      buffetBad.style.display = "block";
+      buffetBad.textContent = "Could not connect to payment service.";
+      buffetPayBtn.disabled = false;
+      buffetPayBtn.textContent = "Pay now";
     }
   });
 
@@ -1393,18 +1787,23 @@
     if (e.key === "Escape") {
       if (diyInfoModal.classList.contains("open")) closeModal();
       if (dateModal.classList.contains("open")) closeDateModal();
+      if (buffetDateModal.classList.contains("open")) closeBuffetDateModal();
     }
   });
 
   function handlePaidReturn(){
     const params = new URLSearchParams(window.location.search);
     const paid = params.get("paid");
-
     if (paid === "1") {
-      paidToast.style.display = "block";
-      location.hash = "#diy";
-      setView("#diy");
-      history.replaceState({}, "", `${window.location.pathname}#diy`);
+      if (location.hash === "#buffet") {
+        buffetPaidToast.style.display = "block";
+        setView("#buffet");
+      } else {
+        paidToast.style.display = "block";
+        location.hash = "#diy";
+        setView("#diy");
+      }
+      history.replaceState({}, "", `${window.location.pathname}${location.hash || "#home"}`);
     }
   }
 
@@ -1415,12 +1814,15 @@
   refreshDateUI();
   refreshTimes();
   updatePaymentUI();
+
+  refreshBuffetMinDate();
+  ensureBuffetDateSelected();
+  refreshBuffetDateUI();
+  refreshBuffetTimes();
+  updateBuffetPaymentUI();
+
   handlePaidReturn();
 </script>
 
 </body>
 </html>
-
-
-
-
