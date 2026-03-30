@@ -1014,6 +1014,7 @@
 
 <script>
   const OPEN_HOURS = { start: "11:00", end: "15:30" };
+  const BUFFET_HOURS = { start: "17:00", end: "19:00" };
   const SLOT_MINUTES = 30;
   const CUT_OFF_HOUR = 15;
   const SHOW_PAST_DAYS = 7;
@@ -1124,7 +1125,7 @@
   }
 
   let minDate = calcMinDateBy3pmRule();
-  let buffetMinDate = calcMinDateBy3pmRule();
+  let buffetMinDate = localYMD(addDays(new Date(), 1));
 
   function refreshMinDate(){
     minDate = calcMinDateBy3pmRule();
@@ -1134,11 +1135,9 @@
   }
 
   function refreshBuffetMinDate(){
-    buffetMinDate = calcMinDateBy3pmRule();
-    const now = new Date();
-    const afterCutoff = now.getHours() >= CUT_OFF_HOUR;
-    buffetDateRuleText.textContent = afterCutoff ? "After 3pm: from day after tomorrow" : "Before 3pm: from tomorrow";
-  }
+  buffetMinDate = localYMD(addDays(new Date(), 1));
+  buffetDateRuleText.textContent = "Buffet bookings are available from tomorrow";
+}
 
   function ymdToDate(ymd){
     const [y,m,d] = ymd.split("-").map(Number);
@@ -1226,49 +1225,52 @@
   }
 
   function refreshBuffetDateUI(){
-    buffetDateTriggerText.textContent = buffetDateHidden.value ? formatNice(buffetDateHidden.value) : "Select a date";
-    buffetDateGrid.innerHTML = "";
+  buffetDateTriggerText.textContent = buffetDateHidden.value ? formatNice(buffetDateHidden.value) : "Select a date";
+  buffetDateGrid.innerHTML = "";
 
-    const now = new Date();
-    const start = addDays(now, -SHOW_PAST_DAYS);
-    const end = addDays(now, SHOW_FUTURE_DAYS);
-    const selected = buffetDateHidden.value;
+  const now = new Date();
+  const tomorrow = localYMD(addDays(now, 1));
+  const start = addDays(now, -SHOW_PAST_DAYS);
+  const end = addDays(now, SHOW_FUTURE_DAYS);
+  const selected = buffetDateHidden.value;
 
-    for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
-      const ymd = localYMD(d);
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "date-btn";
-      btn.dataset.value = ymd;
+  for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+    const ymd = localYMD(d);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "date-btn";
+    btn.dataset.value = ymd;
 
-      const line1 = document.createElement("div");
-      line1.className = "d1";
-      line1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
+    const line1 = document.createElement("div");
+    line1.className = "d1";
+    line1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
 
-      const line2 = document.createElement("div");
-      line2.className = "d2";
-      line2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
+    const line2 = document.createElement("div");
+    line2.className = "d2";
+    line2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
 
-      btn.appendChild(line1);
-      btn.appendChild(line2);
+    btn.appendChild(line1);
+    btn.appendChild(line2);
 
-      const disabled = ymd < buffetMinDate;
-      if (disabled) {
-        btn.classList.add("disabled");
-        btn.setAttribute("aria-disabled","true");
-      } else {
-        btn.addEventListener("click", async () => {
-          buffetDateHidden.value = ymd;
-          refreshBuffetDateUI();
-          await refreshBuffetTimes();
-          closeBuffetDateModal();
-        });
-      }
+    // ✅ 只禁用今天和更早，明天及以后都可选
+    const disabled = ymd < tomorrow;
 
-      if (ymd === selected) btn.classList.add("selected");
-      buffetDateGrid.appendChild(btn);
+    if (disabled) {
+      btn.classList.add("disabled");
+      btn.setAttribute("aria-disabled","true");
+    } else {
+      btn.addEventListener("click", async () => {
+        buffetDateHidden.value = ymd;
+        refreshBuffetDateUI();
+        await refreshBuffetTimes();
+        closeBuffetDateModal();
+      });
     }
+
+    if (ymd === selected) btn.classList.add("selected");
+    buffetDateGrid.appendChild(btn);
   }
+}
 
   dateTrigger.addEventListener("click", () => {
     refreshMinDate();
@@ -1314,6 +1316,17 @@
     return slots;
   }
 
+  function buildBuffetSlots(){
+  const slots = [];
+  let s = toMinutes(BUFFET_HOURS.start);
+  const e = toMinutes(BUFFET_HOURS.end);
+  while (s <= e){
+    slots.push(toHHMM(s));
+    s += SLOT_MINUTES;
+  }
+  return slots;
+}
+  
   function show(el, msg){
     ok.style.display = "none";
     bad.style.display = "none";
@@ -1544,7 +1557,7 @@
     first.textContent = "Select";
     buffetTimeEl.appendChild(first);
 
-    for (const s of buildSlots()){
+    for (const s of refreshBuffetTimes()){
       const opt = document.createElement("option");
       opt.value = s;
       opt.textContent = s;
