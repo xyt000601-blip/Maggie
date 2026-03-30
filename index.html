@@ -129,6 +129,7 @@
       font-weight: 900;
       font-size: 12px;
       white-space:nowrap;
+      cursor:pointer;
     }
 
     .view{ display:none; }
@@ -233,12 +234,6 @@
       background: rgba(255,255,255,.65);
       border:1px solid rgba(201,168,106,.50);
       color: rgba(120,86,30,.92);
-    }
-    .btn.disabled{
-      background: rgba(0,0,0,.06);
-      color: rgba(0,0,0,.35);
-      cursor:not-allowed;
-      border:1px solid rgba(0,0,0,.06);
     }
 
     form{ margin-top: 14px; }
@@ -872,7 +867,7 @@
                   <li>Buffet seating is time-based and subject to availability.</li>
                   <li>Late arrivals may reduce dining time.</li>
                   <li>Food waste may incur an additional charge.</li>
-                  <li>Please inform us of allergies in Notes before payment.</li>
+                  <li>Please inform us of allergies in Notes before booking.</li>
                 </ul>
               </div>
 
@@ -905,6 +900,9 @@
 
           <label>Notes</label>
           <textarea name="notes" placeholder="Allergies, seating requests, special requests..."></textarea>
+
+          <label>Promo code</label>
+          <input type="text" id="buffetPromoCode" placeholder="Enter promo code" />
 
           <label>Total</label>
           <div class="pill has-call" style="width:100%; margin:0; justify-content:space-between;">
@@ -1019,6 +1017,8 @@
   const WORKER_BASE_URL = "https://maggie-booking-webhook.xyt-000601.workers.dev";
   const APPS_SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
 
+  const BUFFET_FREE_PROMO = "linusnb";
+
   const homeView = document.getElementById("homeView");
   const diyView = document.getElementById("diyView");
   const buffetView = document.getElementById("buffetView");
@@ -1100,6 +1100,7 @@
   const buffetConsent = $("buffetConsent");
   const buffetTotalPriceEl = $("buffetTotalPrice");
   const buffetPayBtn = $("buffetPayBtn");
+  const buffetPromoCodeEl = $("buffetPromoCode");
 
   function localYMD(d = new Date()){
     const y = d.getFullYear();
@@ -1507,6 +1508,11 @@
     return n * 58;
   }
 
+  function isBuffetPromoFree(){
+    const code = (buffetPromoCodeEl?.value || "").trim().toLowerCase();
+    return code === BUFFET_FREE_PROMO;
+  }
+
   async function loadBuffetAvailability(dateYmd){
     try {
       const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
@@ -1523,14 +1529,16 @@
   function updateBuffetPaymentUI(){
     const v = buffetGuestsEl.value;
     const consented = buffetConsent.checked;
+    const isFree = isBuffetPromoFree();
 
     buffetPayBtn.disabled = true;
     buffetTotalPriceEl.textContent = "$0";
+    buffetPayBtn.textContent = isFree ? "Book now" : "Pay now";
 
     if (!v) return;
 
     const price = calcBuffetPrice(v);
-    buffetTotalPriceEl.textContent = `$${price}`;
+    buffetTotalPriceEl.textContent = isFree ? "$0" : `$${price}`;
 
     if (consented && buffetDateHidden.value && buffetTimeEl.value) {
       buffetPayBtn.disabled = false;
@@ -1587,6 +1595,41 @@
     updateBuffetPaymentUI();
   }
 
+  async function submitBuffetFreeBooking(payload) {
+    try {
+      const res = await fetch(APPS_SCRIPT_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          api_key: "PROMO_DIRECT_BOOKING",
+          session_id: `promo_${Date.now()}`,
+          payment_status: "promo_free",
+          amount_total: 0,
+          customer_email: payload.email || "",
+          type: "buffet",
+          name: payload.name || "",
+          phone: payload.phone || "",
+          email: payload.email || "",
+          guests: payload.guests || "",
+          flavours: "",
+          date: payload.date || "",
+          time: payload.time || "",
+          notes: payload.notes || "",
+          dining_notice_agreed: "true",
+          booking_status: "confirmed",
+          promo_code: (buffetPromoCodeEl?.value || "").trim()
+        })
+      });
+
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+  }
+
   guestsEl.addEventListener("change", () => {
     if (guestsEl.value === "8+") {
       alert("For 8+ guests, please contact us to confirm availability.");
@@ -1603,6 +1646,10 @@
   });
 
   buffetConsent.addEventListener("change", () => {
+    updateBuffetPaymentUI();
+  });
+
+  buffetPromoCodeEl.addEventListener("input", () => {
     updateBuffetPaymentUI();
   });
 
@@ -1686,6 +1733,7 @@
 
   buffetPayBtn.addEventListener("click", async () => {
     const selectedDate = buffetDateHidden.value;
+    const isFree = isBuffetPromoFree();
 
     buffetOk.style.display = "none";
     buffetBad.style.display = "none";
@@ -1734,6 +1782,32 @@
       dining_notice_agreed: true
     };
 
+    if (isFree) {
+      buffetPayBtn.disabled = true;
+      buffetPayBtn.textContent = "Booking...";
+
+      const result = await submitBuffetFreeBooking(payload);
+
+      if (!result.ok) {
+        buffetBad.style.display = "block";
+        buffetBad.textContent = result.error || "Could not create booking.";
+        buffetPayBtn.disabled = false;
+        buffetPayBtn.textContent = "Book now";
+        return;
+      }
+
+      buffetOk.style.display = "block";
+      buffetOk.textContent = "Booking confirmed.";
+
+      buffetForm.reset();
+      refreshBuffetMinDate();
+      ensureBuffetDateSelected();
+      refreshBuffetDateUI();
+      await refreshBuffetTimes();
+      updateBuffetPaymentUI();
+      return;
+    }
+
     try {
       buffetPayBtn.disabled = true;
       buffetPayBtn.textContent = "Loading...";
@@ -1760,7 +1834,7 @@
       buffetBad.style.display = "block";
       buffetBad.textContent = "Could not connect to payment service.";
       buffetPayBtn.disabled = false;
-      buffetPayBtn.textContent = "Pay now";
+      buffetPayBtn.textContent = isFree ? "Book now" : "Pay now";
     }
   });
 
