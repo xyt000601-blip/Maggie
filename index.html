@@ -1546,54 +1546,58 @@
   }
 
   async function refreshBuffetTimes(){
-    const d = buffetDateHidden.value;
-    if (!d) return;
+  const d = buffetDateHidden.value;
+  if (!d) return;
 
-    const availability = await loadBuffetAvailability(d);
-    const guests = buffetGuestsCount();
+  const availability = await loadBuffetAvailability(d);
+  const guests = buffetGuestsCount();
 
-    buffetTimeGrid.innerHTML = "";
-    buffetTimeEl.innerHTML = "";
-    const first = document.createElement("option");
-    first.value = "";
-    first.textContent = "Select";
-    buffetTimeEl.appendChild(first);
+  console.log("Buffet date:", d);
+  console.log("Buffet guests:", guests);
+  console.log("Buffet availability:", availability);
 
-    for (const s of buildBuffetSlots()){
-      const opt = document.createElement("option");
-      opt.value = s;
-      opt.textContent = s;
-      buffetTimeEl.appendChild(opt);
+  buffetTimeGrid.innerHTML = "";
+  buffetTimeEl.innerHTML = "";
+  const first = document.createElement("option");
+  first.value = "";
+  first.textContent = "Select";
+  buffetTimeEl.appendChild(first);
 
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "time-btn";
-      b.textContent = s;
-      b.dataset.value = s;
+  for (const s of buildBuffetSlots()){
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    buffetTimeEl.appendChild(opt);
 
-      const booked = Number(availability[s] || 0);
-      const overLimit = guests > 0 && (booked + guests > 8);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "time-btn";
+    b.textContent = s;
+    b.dataset.value = s;
 
-      if (overLimit){
-        b.classList.add("disabled");
-        b.setAttribute("aria-disabled","true");
-        b.title = `Fully booked or exceeds capacity. Already booked: ${booked}/8`;
-      } else {
-        b.addEventListener("click", ()=> {
-          buffetTimeEl.value = s;
-          buffetTimeGrid.querySelectorAll(".time-btn").forEach(x => {
-            x.classList.toggle("selected", x.dataset.value === s);
-          });
-          updateBuffetPaymentUI();
+    const booked = Number(availability[s] || 0);
+    const overLimit = guests > 0 && (booked + guests > 8);
+
+    if (overLimit){
+      b.classList.add("disabled");
+      b.setAttribute("aria-disabled","true");
+      b.title = `This time slot is full. Already booked: ${booked}/8`;
+    } else {
+      b.addEventListener("click", ()=> {
+        buffetTimeEl.value = s;
+        buffetTimeGrid.querySelectorAll(".time-btn").forEach(x => {
+          x.classList.toggle("selected", x.dataset.value === s);
         });
-      }
-
-      buffetTimeGrid.appendChild(b);
+        updateBuffetPaymentUI();
+      });
     }
 
-    buffetTimeEl.value = "";
-    updateBuffetPaymentUI();
+    buffetTimeGrid.appendChild(b);
   }
+
+  buffetTimeEl.value = "";
+  updateBuffetPaymentUI();
+}
 
   async function submitBuffetFreeBooking(payload) {
   try {
