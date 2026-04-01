@@ -1564,6 +1564,7 @@
 
   async function refreshBuffetTimes(){
   const d = buffetDateHidden.value;
+
   if (!d) {
     buffetTimeGrid.innerHTML = "";
     buffetTimeEl.innerHTML = `<option value="">Select</option>`;
@@ -1579,6 +1580,7 @@
 
   buffetTimeGrid.innerHTML = "";
   buffetTimeEl.innerHTML = "";
+
   const first = document.createElement("option");
   first.value = "";
   first.textContent = "Select";
@@ -1603,10 +1605,10 @@
 
     if (overLimit){
       b.classList.add("disabled");
-      b.setAttribute("aria-disabled","true");
+      b.setAttribute("aria-disabled", "true");
       b.title = `This time slot is full. Already booked: ${booked}/8`;
     } else {
-      b.addEventListener("click", ()=> {
+      b.addEventListener("click", () => {
         buffetTimeEl.value = s;
         buffetTimeGrid.querySelectorAll(".time-btn").forEach(x => {
           x.classList.toggle("selected", x.dataset.value === s);
