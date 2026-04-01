@@ -1514,17 +1514,32 @@
   }
 
   async function loadBuffetAvailability(dateYmd){
+  try {
+    const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
+    const res = await fetch(url);
+    const text = await res.text();
+
+    console.log("Buffet availability raw response:", text);
+
+    let data = {};
     try {
-      const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data.ok) return {};
-      return data.slots || {};
+      data = JSON.parse(text);
     } catch (err) {
-      console.error("loadBuffetAvailability failed:", err);
+      console.error("Availability JSON parse failed:", err);
       return {};
     }
+
+    if (!data.ok) {
+      console.error("Availability API returned error:", data);
+      return {};
+    }
+
+    return data.slots || {};
+  } catch (err) {
+    console.error("loadBuffetAvailability failed:", err);
+    return {};
   }
+}
 
   function updateBuffetPaymentUI(){
     const v = buffetGuestsEl.value;
@@ -1545,16 +1560,21 @@
     }
   }
 
+  
+
   async function refreshBuffetTimes(){
   const d = buffetDateHidden.value;
-  console.log("Buffet availability:", availability);
-  if (!d) return;
+  if (!d) {
+    buffetTimeGrid.innerHTML = "";
+    buffetTimeEl.innerHTML = `<option value="">Select</option>`;
+    return;
+  }
 
   const availability = await loadBuffetAvailability(d);
   const guests = buffetGuestsCount();
 
-  console.log("Buffet date:", d);
-  console.log("Buffet guests:", guests);
+  console.log("Selected date:", d);
+  console.log("Selected guests:", guests);
   console.log("Buffet availability:", availability);
 
   buffetTimeGrid.innerHTML = "";
@@ -1576,8 +1596,10 @@
     b.textContent = s;
     b.dataset.value = s;
 
-    const booked = Number(availability[s] || 0);
+    const booked = Number(availability[String(s).trim()] || 0);
     const overLimit = guests > 0 && (booked + guests > 8);
+
+    console.log("slot:", s, "booked:", booked, "overLimit:", overLimit);
 
     if (overLimit){
       b.classList.add("disabled");
