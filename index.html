@@ -1547,6 +1547,7 @@
 
   async function refreshBuffetTimes(){
   const d = buffetDateHidden.value;
+  console.log("Buffet availability:", availability);
   if (!d) return;
 
   const availability = await loadBuffetAvailability(d);
