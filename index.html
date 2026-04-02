@@ -848,14 +848,47 @@
               <label>Email (optional)</label>
               <input name="email" type="email" autocomplete="email" />
             </div>
+            <div></div>
+          </div>
+
+          <div class="grid">
             <div>
-              <label>Guests</label>
-              <select name="guests" id="buffetGuests" required>
+              <label>Adult</label>
+              <select id="buffetAdult" required>
                 <option value="">Select</option>
-                <option>1</option><option>2</option><option>3</option><option>4</option>
-                <option>5</option><option>6</option><option>7</option><option>8</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
               </select>
             </div>
+            <div>
+              <label>Child (3–12)</label>
+              <select id="buffetChild" required>
+                <option value="">Select</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label>Baby (under 3)</label>
+              <select id="buffetBaby" required>
+                <option value="">Select</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+            <div></div>
           </div>
 
           <div style="margin-top:10px;">
@@ -1009,7 +1042,8 @@
 <script>
   const OPEN_HOURS = { start: "11:00", end: "15:30" };
   const BUFFET_HOURS = { start: "17:00", end: "19:00" };
-  const SLOT_MINUTES = 30;
+  const DIY_SLOT_MINUTES = 30;
+  const BUFFET_SLOT_MINUTES = 15;
   const CUT_OFF_HOUR = 15;
   const SHOW_PAST_DAYS = 7;
   const SHOW_FUTURE_DAYS = 45;
@@ -1096,7 +1130,9 @@
   const buffetTimeGrid = $("buffetTimeGrid");
   const buffetOk = $("buffetOk");
   const buffetBad = $("buffetBad");
-  const buffetGuestsEl = $("buffetGuests");
+  const buffetAdultEl = $("buffetAdult");
+  const buffetChildEl = $("buffetChild");
+  const buffetBabyEl = $("buffetBaby");
   const buffetConsent = $("buffetConsent");
   const buffetTotalPriceEl = $("buffetTotalPrice");
   const buffetPayBtn = $("buffetPayBtn");
@@ -1307,7 +1343,7 @@
     const e = toMinutes(OPEN_HOURS.end);
     while (s <= e){
       slots.push(toHHMM(s));
-      s += SLOT_MINUTES;
+      s += DIY_SLOT_MINUTES;
     }
     return slots;
   }
@@ -1317,7 +1353,7 @@
     const e = toMinutes(BUFFET_HOURS.end);
     while (s <= e){
       slots.push(toHHMM(s));
-      s += SLOT_MINUTES;
+      s += BUFFET_SLOT_MINUTES;
     }
     return slots;
   }
@@ -1472,10 +1508,9 @@
     if (guestsValue === "8+") return null;
     const n = Number(guestsValue);
     if (!Number.isFinite(n)) return null;
-    if (n === 1) return 58;
-    if (n === 2) return 100;
-    if (n >= 3) return 50 * n;
-    return null;
+    if (n === 1) return 5800;
+    if (n === 2) return 10000;
+    return n * 5000;
   }
 
   function updatePaymentUI(){
@@ -1490,22 +1525,32 @@
       return;
     }
 
-    const price = calcPrice(v);
-    totalPriceEl.textContent = `$${price}`;
+    const cents = calcPrice(v);
+    totalPriceEl.textContent = `$${(cents / 100).toFixed(2)}`;
     payBtn.disabled = false;
   }
 
-  function buffetGuestsCount(){
-    const v = buffetGuestsEl.value;
-    const n = Number(v);
+  function buffetAdultCount(){
+    const n = Number(buffetAdultEl.value);
     return Number.isFinite(n) ? n : 0;
   }
 
-  function calcBuffetPrice(guestsValue){
-    if (!guestsValue) return null;
-    const n = Number(guestsValue);
-    if (!Number.isFinite(n)) return null;
-    return n * 58;
+  function buffetChildCount(){
+    const n = Number(buffetChildEl.value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function buffetBabyCount(){
+    const n = Number(buffetBabyEl.value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function buffetCapacityCount(){
+    return buffetAdultCount() + buffetChildCount();
+  }
+
+  function calcBuffetPrice(){
+    return buffetAdultCount() * 58 + buffetChildCount() * 38;
   }
 
   function isBuffetPromoFree(){
@@ -1514,35 +1559,37 @@
   }
 
   async function loadBuffetAvailability(dateYmd){
-  try {
-    const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
-    const res = await fetch(url);
-    const text = await res.text();
-
-    console.log("Buffet availability raw response:", text);
-
-    let data = {};
     try {
-      data = JSON.parse(text);
+      const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
+      const res = await fetch(url);
+      const text = await res.text();
+
+      console.log("Buffet availability raw response:", text);
+
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        console.error("Availability JSON parse failed:", err);
+        return {};
+      }
+
+      if (!data.ok) {
+        console.error("Availability API returned error:", data);
+        return {};
+      }
+
+      return data.slots || {};
     } catch (err) {
-      console.error("Availability JSON parse failed:", err);
+      console.error("loadBuffetAvailability failed:", err);
       return {};
     }
-
-    if (!data.ok) {
-      console.error("Availability API returned error:", data);
-      return {};
-    }
-
-    return data.slots || {};
-  } catch (err) {
-    console.error("loadBuffetAvailability failed:", err);
-    return {};
   }
-}
 
   function updateBuffetPaymentUI(){
-    const v = buffetGuestsEl.value;
+    const adult = buffetAdultCount();
+    const child = buffetChildCount();
+    const baby = buffetBabyCount();
     const consented = buffetConsent.checked;
     const isFree = isBuffetPromoFree();
 
@@ -1550,99 +1597,98 @@
     buffetTotalPriceEl.textContent = "$0";
     buffetPayBtn.textContent = isFree ? "Book now" : "Pay now";
 
-    if (!v) return;
+    const hasAnyGuest = (adult + child + baby) > 0;
+    if (!hasAnyGuest) return;
 
-    const price = calcBuffetPrice(v);
-    buffetTotalPriceEl.textContent = isFree ? "$0" : `$${price}`;
+    const price = calcBuffetPrice();
+    buffetTotalPriceEl.textContent = isFree ? "$0" : `$${price.toFixed(2)}`;
 
     if (consented && buffetDateHidden.value && buffetTimeEl.value) {
       buffetPayBtn.disabled = false;
     }
   }
 
-  
-
   async function refreshBuffetTimes(){
-  const d = buffetDateHidden.value;
+    const d = buffetDateHidden.value;
 
-  if (!d) {
-    buffetTimeGrid.innerHTML = "";
-    buffetTimeEl.innerHTML = `<option value="">Select</option>`;
-    return;
-  }
-
-  const availability = await loadBuffetAvailability(d);
-  const guests = buffetGuestsCount();
-
-  console.log("Selected date:", d);
-  console.log("Selected guests:", guests);
-  console.log("Buffet availability:", availability);
-
-  buffetTimeGrid.innerHTML = "";
-  buffetTimeEl.innerHTML = "";
-
-  const first = document.createElement("option");
-  first.value = "";
-  first.textContent = "Select";
-  buffetTimeEl.appendChild(first);
-
-  for (const s of buildBuffetSlots()){
-    const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    buffetTimeEl.appendChild(opt);
-
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "time-btn";
-    b.textContent = s;
-    b.dataset.value = s;
-
-    const booked = Number(availability[String(s).trim()] || 0);
-    const overLimit = guests > 0 && (booked + guests > 8);
-
-    console.log("slot:", s, "booked:", booked, "overLimit:", overLimit);
-
-    if (overLimit){
-      b.classList.add("disabled");
-      b.setAttribute("aria-disabled", "true");
-      b.title = `This time slot is full. Already booked: ${booked}/8`;
-    } else {
-      b.addEventListener("click", () => {
-        buffetTimeEl.value = s;
-        buffetTimeGrid.querySelectorAll(".time-btn").forEach(x => {
-          x.classList.toggle("selected", x.dataset.value === s);
-        });
-        updateBuffetPaymentUI();
-      });
+    if (!d) {
+      buffetTimeGrid.innerHTML = "";
+      buffetTimeEl.innerHTML = `<option value="">Select</option>`;
+      return;
     }
 
-    buffetTimeGrid.appendChild(b);
-  }
+    const availability = await loadBuffetAvailability(d);
+    const guests = buffetCapacityCount();
 
-  buffetTimeEl.value = "";
-  updateBuffetPaymentUI();
-}
+    console.log("Selected date:", d);
+    console.log("Selected capacity guests:", guests);
+    console.log("Buffet availability:", availability);
+
+    buffetTimeGrid.innerHTML = "";
+    buffetTimeEl.innerHTML = "";
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "Select";
+    buffetTimeEl.appendChild(first);
+
+    for (const s of buildBuffetSlots()){
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      buffetTimeEl.appendChild(opt);
+
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "time-btn";
+      b.textContent = s;
+      b.dataset.value = s;
+
+      const booked = Number(availability[String(s).trim()] || 0);
+      const overLimit = guests > 0 && (booked + guests > 4);
+
+      console.log("slot:", s, "booked:", booked, "overLimit:", overLimit);
+
+      if (overLimit){
+        b.classList.add("disabled");
+        b.setAttribute("aria-disabled", "true");
+        b.title = `This time slot is full. Already booked: ${booked}/4`;
+      } else {
+        b.addEventListener("click", () => {
+          buffetTimeEl.value = s;
+          buffetTimeGrid.querySelectorAll(".time-btn").forEach(x => {
+            x.classList.toggle("selected", x.dataset.value === s);
+          });
+          updateBuffetPaymentUI();
+        });
+      }
+
+      buffetTimeGrid.appendChild(b);
+    }
+
+    buffetTimeEl.value = "";
+    updateBuffetPaymentUI();
+  }
 
   async function submitBuffetFreeBooking(payload) {
-  try {
-    const res = await fetch(`${WORKER_BASE_URL}/promo-buffet-booking`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        ...payload,
-        promo_code: (buffetPromoCodeEl?.value || "").trim()
-      })
-    });
+    try {
+      const res = await fetch(`${WORKER_BASE_URL}/promo-buffet-booking`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...payload,
+          promo_code: (buffetPromoCodeEl?.value || "").trim()
+        })
+      });
 
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    return { ok: false, error: String(err) };
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
   }
-}
 
   guestsEl.addEventListener("change", () => {
     if (guestsEl.value === "8+") {
@@ -1654,9 +1700,11 @@
     updatePaymentUI();
   });
 
-  buffetGuestsEl.addEventListener("change", async () => {
-    await refreshBuffetTimes();
-    updateBuffetPaymentUI();
+  [buffetAdultEl, buffetChildEl, buffetBabyEl].forEach(el => {
+    el.addEventListener("change", async () => {
+      await refreshBuffetTimes();
+      updateBuffetPaymentUI();
+    });
   });
 
   buffetConsent.addEventListener("change", () => {
@@ -1762,11 +1810,17 @@
       buffetBad.textContent = "Please enter your phone number first.";
       return;
     }
-    if (!buffetGuestsEl.value) {
+
+    const adult = buffetAdultCount();
+    const child = buffetChildCount();
+    const baby = buffetBabyCount();
+
+    if ((adult + child + baby) <= 0) {
       buffetBad.style.display = "block";
       buffetBad.textContent = "Please select guests first.";
       return;
     }
+
     if (!buffetConsent.checked) {
       buffetBad.style.display = "block";
       buffetBad.textContent = "Please agree to the dining notice first.";
@@ -1788,7 +1842,10 @@
       name: buffetForm.elements["name"]?.value?.trim() || "",
       phone: buffetForm.elements["phone"]?.value?.trim() || "",
       email: buffetForm.elements["email"]?.value?.trim() || "",
-      guests: buffetGuestsEl.value || "",
+      adult_count: adult,
+      child_count: child,
+      baby_count: baby,
+      guests: buffetCapacityCount(),
       flavours: "",
       date: selectedDate,
       time: buffetTimeEl.value || "",
