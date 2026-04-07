@@ -721,7 +721,10 @@
 
       <div class="info">
         <div class="pill has-call">
-          <span>Open 10am – 7pm</span>
+          <span>
+            Bakery 10am – 5pm
+            Buffet 5pm – 9pm 
+          </span>
           <a class="call" href="tel:+64223189478">Call</a>
         </div>
 
@@ -738,37 +741,37 @@
       </div>
 
       <section id="homeView" class="view active">
-        <div class="landing-grid">
-          <article class="tile">
-            <div class="hero" style="background-image:url('images/diy.jpg');background-position: 60% 70%;"></div>
-            <div class="tile-body">
-              <div class="kicker">ON-SITE ACTIVITY</div>
-              <h2 class="tile-title">DIY Cake Workshop</h2>
-              <p class="tile-text">
-                Join our on-site DIY cake experience. Choose your date and time, and we’ll confirm your spot shortly.
-              </p>
-              <div class="tile-actions">
-                <button class="btn primary" id="goDIY" type="button">Book DIY</button>
-                <button class="btn ghost" type="button" id="openDIYInfo">Info</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="tile">
-            <div class="hero" style="background-image:url('images/buffet.jpg');background-position: 70% 80%;"></div>
-            <div class="tile-body">
-              <div class="kicker">DINING</div>
-              <h2 class="tile-title">Buffet</h2>
-              <p class="tile-text">
-                Reserve your buffet dining experience. Select your date and time, then complete payment to confirm.
-              </p>
-              <div class="tile-actions">
-                <button class="btn primary" id="goBuffet" type="button">Book Buffet</button>
-              </div>
-            </div>
-          </article>
+  <div class="landing-grid">
+    <article class="tile">
+      <div class="hero" style="background-image:url('images/buffet.jpg');background-position: 70% 80%;"></div>
+      <div class="tile-body">
+        <div class="kicker">DINING</div>
+        <h2 class="tile-title">Buffet</h2>
+        <p class="tile-text">
+          Reserve your buffet dining experience. Select your date and time, then complete payment to confirm.
+        </p>
+        <div class="tile-actions">
+          <button class="btn primary" id="goBuffet" type="button">Book Buffet</button>
         </div>
-      </section>
+      </div>
+    </article>
+
+    <article class="tile">
+      <div class="hero" style="background-image:url('images/diy.jpg');background-position: 60% 70%;"></div>
+      <div class="tile-body">
+        <div class="kicker">ON-SITE ACTIVITY</div>
+        <h2 class="tile-title">DIY Cake Workshop</h2>
+        <p class="tile-text">
+          Join our on-site DIY cake experience. Choose your date and time, and we’ll confirm your spot shortly.
+        </p>
+        <div class="tile-actions">
+          <button class="btn primary" id="goDIY" type="button">Book DIY</button>
+          <button class="btn ghost" type="button" id="openDIYInfo">Info</button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
 
       <section id="diyView" class="view">
         <div class="top-actions">
@@ -1304,48 +1307,55 @@
     }
 
     function refreshBuffetDateUI(){
-      buffetDateTriggerText.textContent = buffetDateHidden.value ? formatNice(buffetDateHidden.value) : "Select a date";
-      buffetDateGrid.innerHTML = "";
+  buffetDateTriggerText.textContent = buffetDateHidden.value ? formatNice(buffetDateHidden.value) : "Select a date";
+  buffetDateGrid.innerHTML = "";
 
-      const now = new Date();
-      const tomorrow = localYMD(addDays(now, 1));
-      const start = addDays(now, -SHOW_PAST_DAYS);
-      const end = addDays(now, SHOW_FUTURE_DAYS);
-      const selected = buffetDateHidden.value;
+  const now = new Date();
+  const tomorrow = localYMD(addDays(now, 1));
+  const start = addDays(now, -SHOW_PAST_DAYS);
+  const end = addDays(now, SHOW_FUTURE_DAYS);
+  const selected = buffetDateHidden.value;
 
-      for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
-        const ymd = localYMD(d);
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "date-btn";
+  for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+    const ymd = localYMD(d);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "date-btn";
 
-        const d1 = document.createElement("div");
-        d1.className = "d1";
-        d1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
+    const d1 = document.createElement("div");
+    d1.className = "d1";
+    d1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
 
-        const d2 = document.createElement("div");
-        d2.className = "d2";
-        d2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
+    const d2 = document.createElement("div");
+    d2.className = "d2";
+    d2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
 
-        btn.appendChild(d1);
-        btn.appendChild(d2);
+    btn.appendChild(d1);
+    btn.appendChild(d2);
 
-        const disabled = ymd < tomorrow;
-        if (disabled) {
-          btn.classList.add("disabled");
-        } else {
-          btn.addEventListener("click", async () => {
-            buffetDateHidden.value = ymd;
-            refreshBuffetDateUI();
-            await refreshBuffetTimes();
-            closeBuffetDateModal();
-          });
-        }
+    const dayOfWeek = d.getDay(); // 0=Sun, 1=Mon, 2=Tue
+    const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2;
+    const isPastBlocked = ymd < tomorrow;
+    const disabled = isPastBlocked || isClosedDay;
 
-        if (ymd === selected) btn.classList.add("selected");
-        buffetDateGrid.appendChild(btn);
+    if (disabled) {
+      btn.classList.add("disabled");
+      if (isClosedDay) {
+        btn.title = "Buffet is unavailable on Mondays and Tuesdays.";
       }
+    } else {
+      btn.addEventListener("click", async () => {
+        buffetDateHidden.value = ymd;
+        refreshBuffetDateUI();
+        await refreshBuffetTimes();
+        closeBuffetDateModal();
+      });
     }
+
+    if (ymd === selected) btn.classList.add("selected");
+    buffetDateGrid.appendChild(btn);
+  }
+}
 
     dateTrigger.addEventListener("click", () => {
       refreshMinDate();
