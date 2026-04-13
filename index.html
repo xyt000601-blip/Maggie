@@ -1200,6 +1200,14 @@
       return x;
     }
 
+    function getNextBuffetOpenDate(fromDate = new Date()){
+  let d = addDays(fromDate, 1); // 从明天开始
+  while (d.getDay() === 1 || d.getDay() === 2) { // 1=Mon, 2=Tue
+    d = addDays(d, 1);
+  }
+  return localYMD(d);
+}
+
     function calcMinDateBy3pmRule(now = new Date()){
       const afterCutoff = (now.getHours() >= CUT_OFF_HOUR);
       const min = addDays(now, afterCutoff ? 2 : 1);
@@ -1217,9 +1225,9 @@
     }
 
     function refreshBuffetMinDate(){
-      buffetMinDate = localYMD(addDays(new Date(), 1));
-      buffetDateRuleText.textContent = "Buffet bookings are available from tomorrow";
-    }
+  buffetMinDate = getNextBuffetOpenDate(new Date());
+  buffetDateRuleText.textContent = "Available from next open day · Closed on Mon & Tue";
+}
 
     function ymdToDate(ymd){
       const [y,m,d] = ymd.split("-").map(Number);
@@ -1238,10 +1246,20 @@
     }
 
     function ensureBuffetDateSelected(){
-      if (!buffetDateHidden.value || buffetDateHidden.value < buffetMinDate) {
-        buffetDateHidden.value = buffetMinDate;
-      }
-    }
+  const current = buffetDateHidden.value;
+
+  if (!current) {
+    buffetDateHidden.value = buffetMinDate;
+    return;
+  }
+
+  const d = ymdToDate(current);
+  const isClosedDay = d.getDay() === 1 || d.getDay() === 2;
+
+  if (current < buffetMinDate || isClosedDay) {
+    buffetDateHidden.value = buffetMinDate;
+  }
+}
 
     function openDateModal(){
       dateModal.classList.add("open");
@@ -1289,8 +1307,7 @@
         btn.appendChild(d1);
         btn.appendChild(d2);
 
-        const disabled = ymd < minDate;
-        if (disabled) {
+        const disabled = ymd < firstOpenDay || isClosedDay;
           btn.classList.add("disabled");
         } else {
           btn.addEventListener("click", () => {
@@ -1311,7 +1328,7 @@
   buffetDateGrid.innerHTML = "";
 
   const now = new Date();
-  const tomorrow = localYMD(addDays(now, 1));
+  const firstOpenDay = getNextBuffetOpenDate(now);
   const start = addDays(now, -SHOW_PAST_DAYS);
   const end = addDays(now, SHOW_FUTURE_DAYS);
   const selected = buffetDateHidden.value;
