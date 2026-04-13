@@ -886,7 +886,7 @@
 
           <div class="grid">
             <div>
-              <label>Adult <span style="color:#78561e;font-weight:900;">$58</span></label>
+              <label>Adult <span style="color:#78561e;font-weight:900;">$78</span></label>
               <select id="buffetAdult" required>
                 <option value="">Select</option>
                 <option value="0">0</option>
@@ -897,7 +897,7 @@
               </select>
             </div>
             <div>
-              <label>Child (3–12 years old) <span style="color:#78561e;font-weight:900;">$38</span></label>
+              <label>Child (3–12 years old) <span style="color:#78561e;font-weight:900;">$39</span></label>
               <select id="buffetChild" required>
                 <option value="">Select</option>
                 <option value="0">0</option>
@@ -1584,7 +1584,7 @@
     function buffetChildCount(){ return Number(buffetChildEl.value) || 0; }
     function buffetBabyCount(){ return Number(buffetBabyEl.value) || 0; }
     function buffetCapacityCount(){ return buffetAdultCount() + buffetChildCount(); }
-    function calcBuffetPrice(){ return buffetAdultCount() * 58 + buffetChildCount() * 38; }
+    function calcBuffetPrice(){ return buffetAdultCount() * 78 + buffetChildCount() * 39; }
     function isBuffetPromoFree(){ return (buffetPromoCodeEl.value || "").trim().toLowerCase() === BUFFET_FREE_PROMO; }
 
     async function loadBuffetAvailability(dateYmd){
