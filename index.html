@@ -1226,7 +1226,7 @@
 
     function refreshBuffetMinDate(){
       buffetMinDate = getNextBuffetOpenDate(new Date());
-      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon & Tue";
+      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon & Tue & Wed";
     }
 
     function ymdToDate(ymd){
@@ -1357,7 +1357,7 @@
 
         if (disabled) {
           btn.classList.add("disabled");
-          if (isClosedDay) btn.title = "Buffet is unavailable on Mondays and Tuesdays.";
+          if (isClosedDay) btn.title = "Buffet is unavailable on Mondays, Tuesdays and Wednesdays.";
         } else {
           btn.addEventListener("click", async () => {
             buffetDateHidden.value = ymd;
@@ -1650,7 +1650,7 @@
       }
 
       const currentDate = ymdToDate(d);
-      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2;
+      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3;
       if (isClosedDay) {
         buffetTimeGrid.innerHTML = "";
         buffetTimeEl.innerHTML = `<option value="">Select</option>`;
@@ -1834,9 +1834,9 @@
       }
 
       const selectedObj = ymdToDate(selectedDate);
-      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2) {
+      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2 || selectedObj.getDay() === 3) {
         buffetBad.style.display = "block";
-        buffetBad.textContent = "Buffet is unavailable on Mondays and Tuesdays.";
+        buffetBad.textContent = "Buffet is unavailable on Mondays, Tuesdays and Wednesdays.";
         return;
       }
 
