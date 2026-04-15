@@ -1254,7 +1254,7 @@
       }
 
       const d = ymdToDate(current);
-      const isClosedDay = d.getDay() === 1 || d.getDay() === 2;
+      const isClosedDay = d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3;
 
       if (current < buffetMinDate || isClosedDay) {
         buffetDateHidden.value = buffetMinDate;
