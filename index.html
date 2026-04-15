@@ -1202,7 +1202,7 @@
 
     function getNextBuffetOpenDate(fromDate = new Date()){
       let d = addDays(fromDate, 1);
-      while (d.getDay() === 1 || d.getDay() === 2) {
+      while (d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3) {
         d = addDays(d, 1);
       }
       return localYMD(d);
@@ -1352,7 +1352,7 @@
         btn.appendChild(d2);
 
         const dayOfWeek = d.getDay();
-        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2;dayOfWeek === 2;
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3;
         const disabled = ymd < firstOpenDay || isClosedDay;
 
         if (disabled) {
