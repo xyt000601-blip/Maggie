@@ -1195,7 +1195,7 @@
                   <label>Date</label>
                   <button type="button" class="date-trigger" id="staffDateTrigger">
                     <span id="staffDateTriggerText">Select a date</span>
-                    <span class="muted">Closed on Mon & Tue</span>
+                    <span class="muted">Closed on Mon, Tue & Wed</span>
                     <span class="chev" aria-hidden="true"></span>
                   </button>
                   <input type="hidden" id="staffDate" />
@@ -1354,7 +1354,7 @@
     const WORKER_BASE_URL = "https://maggie-booking-webhook.xyt-000601.workers.dev";
     const APPS_SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
     const BUFFET_FREE_PROMO = "linusnb";
-    const STAFF_PASSCODE = "123456"; // 改成你自己的前台密码
+    const STAFF_PASSCODE = "9478"; // 改成你自己的前台密码
 
     const homeView = document.getElementById("homeView");
     const diyView = document.getElementById("diyView");
@@ -1488,7 +1488,7 @@
 
     function getNextBuffetOpenDate(fromDate = new Date()){
       let d = addDays(fromDate, 1);
-      while (d.getDay() === 1 || d.getDay() === 2) {
+      while (d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3) {
         d = addDays(d, 1);
       }
       return localYMD(d);
@@ -1513,7 +1513,7 @@
 
     function refreshBuffetMinDate(){
       buffetMinDate = getNextBuffetOpenDate(new Date());
-      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon & Tue";
+      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon, Tue & Wed";
     }
 
     function refreshStaffDateMin(){
@@ -1543,7 +1543,7 @@
         return;
       }
       const d = ymdToDate(current);
-      const isClosedDay = d.getDay() === 1 || d.getDay() === 2;
+      const isClosedDay = d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3;
       if (current < buffetMinDate || isClosedDay) {
         buffetDateHidden.value = buffetMinDate;
       }
@@ -1556,7 +1556,7 @@
         return;
       }
       const d = ymdToDate(current);
-      const isClosedDay = d.getDay() === 1 || d.getDay() === 2;
+      const isClosedDay = d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3;
       if (current < staffMinDate || isClosedDay) {
         staffDate.value = staffMinDate;
       }
@@ -1660,12 +1660,12 @@
         btn.appendChild(d2);
 
         const dayOfWeek = d.getDay();
-        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2;
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3;
         const disabled = ymd < firstOpenDay || isClosedDay;
 
         if (disabled) {
           btn.classList.add("disabled");
-          if (isClosedDay) btn.title = "Buffet is unavailable on Mondays and Tuesdays.";
+          if (isClosedDay) btn.title = "Buffet is unavailable on Mondays, Tuesdays & Wednesdays.";
         } else {
           btn.addEventListener("click", async () => {
             buffetDateHidden.value = ymd;
@@ -1708,7 +1708,7 @@
         btn.appendChild(d2);
 
         const dayOfWeek = d.getDay();
-        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2;
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3;
         const disabled = ymd < firstOpenDay || isClosedDay;
 
         if (disabled) {
@@ -2029,7 +2029,7 @@
       }
 
       const currentDate = ymdToDate(d);
-      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2;
+      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3;
       if (isClosedDay) {
         buffetTimeGrid.innerHTML = "";
         buffetTimeEl.innerHTML = `<option value="">Select</option>`;
@@ -2284,9 +2284,9 @@
       }
 
       const selectedObj = ymdToDate(selectedDate);
-      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2) {
+      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2 || selectedObj.getDay() === 3) {
         buffetBad.style.display = "block";
-        buffetBad.textContent = "Buffet is unavailable on Mondays and Tuesdays.";
+        buffetBad.textContent = "Buffet is unavailable on Mondays,Tuesdays & Wednesdays.";
         return;
       }
 
