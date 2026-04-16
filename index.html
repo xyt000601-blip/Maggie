@@ -47,7 +47,7 @@
     }
 
     .wrap{
-      max-width: 980px;
+      max-width: 1080px;
       margin: 44px auto;
       padding: 0 16px 64px;
     }
@@ -108,7 +108,7 @@
       color: rgba(15,61,46,.86);
       font-size: 12px;
       font-weight: 750;
-      width: min(560px, 100%);
+      width: min(620px, 100%);
       margin: 0 auto;
     }
 
@@ -691,6 +691,112 @@
       font-size: 14px;
     }
 
+    .staff-calendar-board{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+
+    .staff-day-card{
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:16px;
+      background:#fff;
+      padding:12px;
+      cursor:pointer;
+      transition:.12s;
+    }
+
+    .staff-day-card:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+    }
+
+    .staff-day-card.selected{
+      border-color: rgba(201,168,106,.85);
+      box-shadow: 0 0 0 4px rgba(201,168,106,.18);
+    }
+
+    .staff-day-card.closed{
+      background: rgba(0,0,0,.04);
+      color: rgba(0,0,0,.4);
+      cursor:not-allowed;
+    }
+
+    .staff-day-title{
+      font-weight:900;
+      color:#0f3d2e;
+      font-size:14px;
+    }
+
+    .staff-day-sub{
+      margin-top:4px;
+      font-size:12px;
+      color:#5c6b63;
+    }
+
+    .staff-day-meta{
+      margin-top:8px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .staff-slot-status{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+
+    .staff-slot-card{
+      border-radius:16px;
+      padding:12px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      cursor:pointer;
+      transition:.12s;
+    }
+
+    .staff-slot-card:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+    }
+
+    .staff-slot-card.selected{
+      border-color: rgba(201,168,106,.85);
+      box-shadow: 0 0 0 4px rgba(201,168,106,.18);
+    }
+
+    .staff-slot-card.full{
+      background:#ffecec;
+      color:#8b1a1a;
+      cursor:not-allowed;
+    }
+
+    .staff-slot-card.limited{
+      background: rgba(201,168,106,.14);
+      color: rgba(120,86,30,.95);
+    }
+
+    .staff-slot-card.available{
+      background:#e7f7ee;
+      color:#1c6f48;
+    }
+
+    .staff-slot-time{
+      font-weight:900;
+      font-size:14px;
+    }
+
+    .staff-slot-meta{
+      margin-top:4px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    @media(max-width:980px){
+      .staff-calendar-board{ grid-template-columns: repeat(2, 1fr); }
+      .staff-slot-status{ grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media(max-width:820px){
       .landing-grid{ grid-template-columns: 1fr; }
       .tile{ min-height: unset; }
@@ -707,6 +813,8 @@
       .modal-card{ margin: 12px auto; }
       .date-grid{ grid-template-columns: repeat(2, 1fr); }
       .date-card{ margin: 12px auto; }
+      .staff-calendar-board,
+      .staff-slot-status{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -743,7 +851,7 @@
       <section id="homeView" class="view active">
         <div class="landing-grid">
           <article class="tile">
-            <div class="hero" style="background-image:url('images/buffet_new.jpg')"></div>
+            <div class="hero" style="background-image:url('images/buffet.jpg');background-position: 70% 80%;"></div>
             <div class="tile-body">
               <div class="kicker">DINING</div>
               <h2 class="tile-title">Buffet</h2>
@@ -770,6 +878,10 @@
               </div>
             </div>
           </article>
+        </div>
+
+        <div style="margin-top:18px; text-align:center;">
+          <button class="btn ghost" id="goStaff" type="button">Staff Admin</button>
         </div>
       </section>
 
@@ -1011,6 +1123,128 @@
           <div class="toast bad" id="buffetBad"></div>
         </form>
       </section>
+
+      <section id="staffView" class="view">
+        <div class="top-actions">
+          <button class="back" id="backHomeFromStaff" type="button">← Back</button>
+        </div>
+
+        <p class="sub" style="margin-top:6px;">Internal booking admin for phone / WeChat / walk-in reservations.</p>
+
+        <div class="grid" style="margin-top:18px; align-items:start;">
+          <div>
+            <div class="notice-box">
+              <h3 style="margin:0 0 12px; color:#0f3d2e;">Add Buffet Booking</h3>
+
+              <label>Staff Passcode</label>
+              <input id="staffPasscode" type="password" placeholder="Enter staff passcode" />
+
+              <label>Name</label>
+              <input id="staffName" type="text" placeholder="Customer name" />
+
+              <label>Phone</label>
+              <input id="staffPhone" type="text" placeholder="Phone number" />
+
+              <label>Source</label>
+              <select id="staffSource">
+                <option value="phone">Phone</option>
+                <option value="wechat">WeChat</option>
+                <option value="walkin">Walk-in</option>
+                <option value="manual">Manual</option>
+              </select>
+
+              <div class="grid">
+                <div>
+                  <label>Adult</label>
+                  <select id="staffAdult">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Child</label>
+                  <select id="staffChild">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid">
+                <div>
+                  <label>Baby</label>
+                  <select id="staffBaby">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select>
+                </div>
+                <div></div>
+              </div>
+
+              <div class="grid">
+                <div>
+                  <label>Date</label>
+                  <button type="button" class="date-trigger" id="staffDateTrigger">
+                    <span id="staffDateTriggerText">Select a date</span>
+                    <span class="muted">Closed on Mon & Tue</span>
+                    <span class="chev" aria-hidden="true"></span>
+                  </button>
+                  <input type="hidden" id="staffDate" />
+                </div>
+
+                <div>
+                  <label>Time</label>
+                  <div id="staffTimeGrid" class="time-grid"></div>
+                  <select id="staffTime" hidden>
+                    <option value="">Select</option>
+                  </select>
+                </div>
+              </div>
+
+              <label>Notes</label>
+              <textarea id="staffNotes" placeholder="Special requests / internal notes..."></textarea>
+
+              <div class="pill has-call" style="width:100%; margin-top:14px; justify-content:space-between;">
+                <span><strong id="staffSummary">Capacity used: 0 guest(s)</strong></span>
+                <span><strong id="staffTotal">$0.00</strong></span>
+              </div>
+
+              <button class="btn primary" id="staffSubmitBtn" type="button" style="width:100%; margin-top:14px;">
+                Add Booking
+              </button>
+
+              <div class="toast ok" id="staffOk">Booking added.</div>
+              <div class="toast bad" id="staffBad"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="notice-box">
+              <h3 style="margin:0 0 12px; color:#0f3d2e;">Availability Board</h3>
+              <div id="staffCalendarBoard" class="staff-calendar-board"></div>
+            </div>
+
+            <div class="notice-box" style="margin-top:14px;">
+              <h3 style="margin:0 0 12px; color:#0f3d2e;">Selected Date · Slot Status</h3>
+              <div id="staffSlotStatus" class="staff-slot-status"></div>
+            </div>
+
+            <div class="notice-box" style="margin-top:14px;">
+              <h3 style="margin:0 0 12px; color:#0f3d2e;">Selected Date · Bookings</h3>
+              <div id="staffTodayList" style="display:grid; gap:10px;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -1036,6 +1270,19 @@
       </div>
       <div class="date-body">
         <div class="date-grid" id="buffetDateGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="date-modal" id="staffDateModal" aria-hidden="true">
+    <div class="date-backdrop" data-staff-date-close="1"></div>
+    <div class="date-card">
+      <div class="date-head">
+        <h3 class="date-title">Select a date</h3>
+        <button class="date-x" type="button" data-staff-date-close="1">✕</button>
+      </div>
+      <div class="date-body">
+        <div class="date-grid" id="staffDateGrid"></div>
       </div>
     </div>
   </div>
@@ -1107,16 +1354,20 @@
     const WORKER_BASE_URL = "https://maggie-booking-webhook.xyt-000601.workers.dev";
     const APPS_SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbzUcA0p5RGkTLYTLQC6gtcJTWPKhpTxQmkWWP1HLTLn-XYvn9bcxue8Bax8Td3iHj3eGA/exec";
     const BUFFET_FREE_PROMO = "linusnb";
+    const STAFF_PASSCODE = "123456"; // 改成你自己的前台密码
 
     const homeView = document.getElementById("homeView");
     const diyView = document.getElementById("diyView");
     const buffetView = document.getElementById("buffetView");
+    const staffView = document.getElementById("staffView");
     const pageSub = document.getElementById("pageSub");
 
     const goDIY = document.getElementById("goDIY");
     const goBuffet = document.getElementById("goBuffet");
+    const goStaff = document.getElementById("goStaff");
     const backHome = document.getElementById("backHome");
     const backHomeFromBuffet = document.getElementById("backHomeFromBuffet");
+    const backHomeFromStaff = document.getElementById("backHomeFromStaff");
 
     const $ = (id) => document.getElementById(id);
 
@@ -1124,6 +1375,7 @@
       homeView.classList.remove("active");
       diyView.classList.remove("active");
       buffetView.classList.remove("active");
+      staffView.classList.remove("active");
 
       if (view === "diy") {
         diyView.classList.add("active");
@@ -1139,6 +1391,14 @@
         ensureBuffetDateSelected();
         refreshBuffetDateUI();
         refreshBuffetTimes();
+      } else if (view === "staff") {
+        staffView.classList.add("active");
+        pageSub.textContent = "Internal booking admin for phone / WeChat / walk-in reservations.";
+        refreshStaffDateMin();
+        ensureStaffDateSelected();
+        refreshStaffDateUI();
+        refreshStaffTimes();
+        loadStaffBoard();
       } else {
         homeView.classList.add("active");
         pageSub.textContent = "Choose a booking type below.";
@@ -1147,8 +1407,10 @@
 
     goDIY.addEventListener("click", () => showView("diy"));
     goBuffet.addEventListener("click", () => showView("buffet"));
+    goStaff?.addEventListener("click", () => showView("staff"));
     backHome.addEventListener("click", () => showView("home"));
     backHomeFromBuffet.addEventListener("click", () => showView("home"));
+    backHomeFromStaff?.addEventListener("click", () => showView("home"));
 
     const form = $("form");
     const dateHidden = $("date");
@@ -1187,6 +1449,30 @@
     const buffetPayBtn = $("buffetPayBtn");
     const buffetPromoCodeEl = $("buffetPromoCode");
 
+    const staffPasscode = $("staffPasscode");
+    const staffName = $("staffName");
+    const staffPhone = $("staffPhone");
+    const staffSource = $("staffSource");
+    const staffAdult = $("staffAdult");
+    const staffChild = $("staffChild");
+    const staffBaby = $("staffBaby");
+    const staffDate = $("staffDate");
+    const staffDateTrigger = $("staffDateTrigger");
+    const staffDateTriggerText = $("staffDateTriggerText");
+    const staffDateModal = $("staffDateModal");
+    const staffDateGrid = $("staffDateGrid");
+    const staffTime = $("staffTime");
+    const staffTimeGrid = $("staffTimeGrid");
+    const staffNotes = $("staffNotes");
+    const staffSummary = $("staffSummary");
+    const staffTotal = $("staffTotal");
+    const staffSubmitBtn = $("staffSubmitBtn");
+    const staffOk = $("staffOk");
+    const staffBad = $("staffBad");
+    const staffCalendarBoard = $("staffCalendarBoard");
+    const staffSlotStatus = $("staffSlotStatus");
+    const staffTodayList = $("staffTodayList");
+
     function localYMD(d = new Date()){
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -1202,7 +1488,7 @@
 
     function getNextBuffetOpenDate(fromDate = new Date()){
       let d = addDays(fromDate, 1);
-      while (d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3) {
+      while (d.getDay() === 1 || d.getDay() === 2) {
         d = addDays(d, 1);
       }
       return localYMD(d);
@@ -1216,6 +1502,7 @@
 
     let minDate = calcMinDateBy3pmRule();
     let buffetMinDate = getNextBuffetOpenDate(new Date());
+    let staffMinDate = getNextBuffetOpenDate(new Date());
 
     function refreshMinDate(){
       minDate = calcMinDateBy3pmRule();
@@ -1226,7 +1513,11 @@
 
     function refreshBuffetMinDate(){
       buffetMinDate = getNextBuffetOpenDate(new Date());
-      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon & Tue & Wed";
+      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon & Tue";
+    }
+
+    function refreshStaffDateMin(){
+      staffMinDate = getNextBuffetOpenDate(new Date());
     }
 
     function ymdToDate(ymd){
@@ -1247,17 +1538,27 @@
 
     function ensureBuffetDateSelected(){
       const current = buffetDateHidden.value;
-
       if (!current) {
         buffetDateHidden.value = buffetMinDate;
         return;
       }
-
       const d = ymdToDate(current);
-      const isClosedDay = d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3;
-
+      const isClosedDay = d.getDay() === 1 || d.getDay() === 2;
       if (current < buffetMinDate || isClosedDay) {
         buffetDateHidden.value = buffetMinDate;
+      }
+    }
+
+    function ensureStaffDateSelected(){
+      const current = staffDate.value;
+      if (!current) {
+        staffDate.value = staffMinDate;
+        return;
+      }
+      const d = ymdToDate(current);
+      const isClosedDay = d.getDay() === 1 || d.getDay() === 2;
+      if (current < staffMinDate || isClosedDay) {
+        staffDate.value = staffMinDate;
       }
     }
 
@@ -1265,7 +1566,6 @@
       dateModal.classList.add("open");
       dateModal.setAttribute("aria-hidden", "false");
     }
-
     function closeDateModal(){
       dateModal.classList.remove("open");
       dateModal.setAttribute("aria-hidden", "true");
@@ -1275,10 +1575,18 @@
       buffetDateModal.classList.add("open");
       buffetDateModal.setAttribute("aria-hidden", "false");
     }
-
     function closeBuffetDateModal(){
       buffetDateModal.classList.remove("open");
       buffetDateModal.setAttribute("aria-hidden", "true");
+    }
+
+    function openStaffDateModal(){
+      staffDateModal.classList.add("open");
+      staffDateModal.setAttribute("aria-hidden", "false");
+    }
+    function closeStaffDateModal(){
+      staffDateModal.classList.remove("open");
+      staffDateModal.setAttribute("aria-hidden", "true");
     }
 
     function refreshDateUI(){
@@ -1352,12 +1660,12 @@
         btn.appendChild(d2);
 
         const dayOfWeek = d.getDay();
-        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3;
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2;
         const disabled = ymd < firstOpenDay || isClosedDay;
 
         if (disabled) {
           btn.classList.add("disabled");
-          if (isClosedDay) btn.title = "Buffet is unavailable on Mondays, Tuesdays and Wednesdays.";
+          if (isClosedDay) btn.title = "Buffet is unavailable on Mondays and Tuesdays.";
         } else {
           btn.addEventListener("click", async () => {
             buffetDateHidden.value = ymd;
@@ -1369,6 +1677,54 @@
 
         if (ymd === selected) btn.classList.add("selected");
         buffetDateGrid.appendChild(btn);
+      }
+    }
+
+    function refreshStaffDateUI(){
+      staffDateTriggerText.textContent = staffDate.value ? formatNice(staffDate.value) : "Select a date";
+      staffDateGrid.innerHTML = "";
+
+      const now = new Date();
+      const firstOpenDay = getNextBuffetOpenDate(now);
+      const start = addDays(now, -SHOW_PAST_DAYS);
+      const end = addDays(now, SHOW_FUTURE_DAYS);
+      const selected = staffDate.value;
+
+      for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+        const ymd = localYMD(d);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "date-btn";
+
+        const d1 = document.createElement("div");
+        d1.className = "d1";
+        d1.textContent = d.toLocaleDateString("en-NZ", { weekday:"short" });
+
+        const d2 = document.createElement("div");
+        d2.className = "d2";
+        d2.textContent = d.toLocaleDateString("en-NZ", { day:"2-digit", month:"short", year:"numeric" });
+
+        btn.appendChild(d1);
+        btn.appendChild(d2);
+
+        const dayOfWeek = d.getDay();
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2;
+        const disabled = ymd < firstOpenDay || isClosedDay;
+
+        if (disabled) {
+          btn.classList.add("disabled");
+        } else {
+          btn.addEventListener("click", async () => {
+            staffDate.value = ymd;
+            refreshStaffDateUI();
+            await refreshStaffTimes();
+            await loadStaffBoard();
+            closeStaffDateModal();
+          });
+        }
+
+        if (ymd === selected) btn.classList.add("selected");
+        staffDateGrid.appendChild(btn);
       }
     }
 
@@ -1386,6 +1742,13 @@
       openBuffetDateModal();
     });
 
+    staffDateTrigger?.addEventListener("click", () => {
+      refreshStaffDateMin();
+      ensureStaffDateSelected();
+      refreshStaffDateUI();
+      openStaffDateModal();
+    });
+
     dateModal.addEventListener("click", (e) => {
       const t = e.target;
       if (t && t.getAttribute && t.getAttribute("data-date-close") === "1") closeDateModal();
@@ -1394,6 +1757,11 @@
     buffetDateModal.addEventListener("click", (e) => {
       const t = e.target;
       if (t && t.getAttribute && t.getAttribute("data-buffet-date-close") === "1") closeBuffetDateModal();
+    });
+
+    staffDateModal?.addEventListener("click", (e) => {
+      const t = e.target;
+      if (t && t.getAttribute && t.getAttribute("data-staff-date-close") === "1") closeStaffDateModal();
     });
 
     function toMinutes(t){
@@ -1602,6 +1970,12 @@
     function calcBuffetPrice(){ return buffetAdultCount() * 78 + buffetChildCount() * 39; }
     function isBuffetPromoFree(){ return (buffetPromoCodeEl.value || "").trim().toLowerCase() === BUFFET_FREE_PROMO; }
 
+    function staffAdultCount(){ return Number(staffAdult.value) || 0; }
+    function staffChildCount(){ return Number(staffChild.value) || 0; }
+    function staffBabyCount(){ return Number(staffBaby.value) || 0; }
+    function staffCapacityCount(){ return staffAdultCount() + staffChildCount(); }
+    function staffTotalPrice(){ return staffAdultCount() * 78 + staffChildCount() * 39; }
+
     async function loadBuffetAvailability(dateYmd){
       try {
         const url = `${APPS_SCRIPT_ENDPOINT}?action=get_buffet_availability&date=${encodeURIComponent(dateYmd)}`;
@@ -1641,6 +2015,11 @@
       }
     }
 
+    function updateStaffSummary(){
+      staffSummary.textContent = `Capacity used: ${staffCapacityCount()} guest(s)`;
+      staffTotal.textContent = `$${staffTotalPrice().toFixed(2)}`;
+    }
+
     async function refreshBuffetTimes(){
       const d = buffetDateHidden.value;
       if (!d) {
@@ -1650,7 +2029,7 @@
       }
 
       const currentDate = ymdToDate(d);
-      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3;
+      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2;
       if (isClosedDay) {
         buffetTimeGrid.innerHTML = "";
         buffetTimeEl.innerHTML = `<option value="">Select</option>`;
@@ -1705,6 +2084,70 @@
       updateBuffetPaymentUI();
     }
 
+    async function refreshStaffTimes(){
+      const d = staffDate.value;
+      if (!d) {
+        staffTimeGrid.innerHTML = "";
+        staffTime.innerHTML = `<option value="">Select</option>`;
+        return;
+      }
+
+      const currentDate = ymdToDate(d);
+      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2;
+      if (isClosedDay) {
+        staffTimeGrid.innerHTML = "";
+        staffTime.innerHTML = `<option value="">Select</option>`;
+        staffTime.value = "";
+        updateStaffSummary();
+        return;
+      }
+
+      const availability = await loadBuffetAvailability(d);
+      const guests = staffCapacityCount();
+
+      staffTimeGrid.innerHTML = "";
+      staffTime.innerHTML = "";
+
+      const first = document.createElement("option");
+      first.value = "";
+      first.textContent = "Select";
+      staffTime.appendChild(first);
+
+      for (const s of buildBuffetSlots()){
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        staffTime.appendChild(opt);
+
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "time-btn";
+        b.textContent = s;
+        b.dataset.value = s;
+
+        const booked = Number(availability[String(s).trim()] || 0);
+        const overLimit = guests > 0 && (booked + guests > 4);
+
+        if (overLimit){
+          b.classList.add("disabled");
+          b.title = `This time slot is full. Already booked: ${booked}/4`;
+        } else {
+          b.addEventListener("click", () => {
+            staffTime.value = s;
+            staffTimeGrid.querySelectorAll(".time-btn").forEach(x => {
+              x.classList.toggle("selected", x.dataset.value === s);
+            });
+            updateStaffSummary();
+          });
+        }
+
+        staffTimeGrid.appendChild(b);
+      }
+
+      staffTime.value = "";
+      updateStaffSummary();
+    }
+
     async function submitBuffetFreeBooking(payload) {
       try {
         const res = await fetch(`${WORKER_BASE_URL}/promo-buffet-booking`, {
@@ -1725,6 +2168,13 @@
       el.addEventListener("change", async () => {
         await refreshBuffetTimes();
         updateBuffetPaymentUI();
+      });
+    });
+
+    [staffAdult, staffChild, staffBaby].forEach(el => {
+      el?.addEventListener("change", async () => {
+        await refreshStaffTimes();
+        updateStaffSummary();
       });
     });
 
@@ -1834,9 +2284,9 @@
       }
 
       const selectedObj = ymdToDate(selectedDate);
-      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2 || selectedObj.getDay() === 3) {
+      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2) {
         buffetBad.style.display = "block";
-        buffetBad.textContent = "Buffet is unavailable on Mondays, Tuesdays and Wednesdays.";
+        buffetBad.textContent = "Buffet is unavailable on Mondays and Tuesdays.";
         return;
       }
 
@@ -1914,6 +2364,245 @@
       }
     });
 
+    async function loadStaffBoard(){
+      const date = staffDate.value || localYMD(new Date());
+      try {
+        const res = await fetch(`${APPS_SCRIPT_ENDPOINT}?action=get_staff_calendar_overview&date=${encodeURIComponent(date)}`);
+        const data = await res.json();
+
+        if (!data.ok) {
+          staffCalendarBoard.innerHTML = `<div style="color:#8b1a1a;">Could not load board.</div>`;
+          staffSlotStatus.innerHTML = "";
+          staffTodayList.innerHTML = "";
+          return;
+        }
+
+        renderStaffCalendarBoard(data.days || [], date);
+        renderStaffSelectedDay(data.selected_day || null);
+      } catch (err) {
+        staffCalendarBoard.innerHTML = `<div style="color:#8b1a1a;">Could not load board.</div>`;
+        staffSlotStatus.innerHTML = "";
+        staffTodayList.innerHTML = "";
+      }
+    }
+
+    function renderStaffCalendarBoard(days, selectedDate){
+      staffCalendarBoard.innerHTML = "";
+
+      if (!days.length) {
+        staffCalendarBoard.innerHTML = `<div style="color:#5c6b63;">No calendar data.</div>`;
+        return;
+      }
+
+      days.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "staff-day-card";
+        if (day.date === selectedDate) card.classList.add("selected");
+        if (day.closed) card.classList.add("closed");
+
+        const fullCount = Object.values(day.slots || {}).filter(v => Number(v) >= 4).length;
+        const openCount = Object.values(day.slots || {}).filter(v => Number(v) < 4).length;
+
+        card.innerHTML = `
+          <div class="staff-day-title">${day.label}</div>
+          <div class="staff-day-sub">${day.date}</div>
+          <div class="staff-day-meta">
+            ${day.closed ? "Closed" : `${openCount} open · ${fullCount} full`}
+          </div>
+        `;
+
+        if (!day.closed) {
+          card.addEventListener("click", async () => {
+            staffDate.value = day.date;
+            refreshStaffDateUI();
+            await refreshStaffTimes();
+            await loadStaffBoard();
+          });
+        }
+
+        staffCalendarBoard.appendChild(card);
+      });
+    }
+
+    function renderStaffSelectedDay(day){
+      staffSlotStatus.innerHTML = "";
+      staffTodayList.innerHTML = "";
+
+      if (!day) {
+        staffSlotStatus.innerHTML = `<div style="color:#5c6b63;">No data.</div>`;
+        return;
+      }
+
+      const slots = day.slots || {};
+      buildBuffetSlots().forEach(slot => {
+        const booked = Number(slots[slot] || 0);
+        const card = document.createElement("div");
+        card.className = "staff-slot-card";
+
+        if (day.closed) {
+          card.classList.add("full");
+          card.innerHTML = `
+            <div class="staff-slot-time">${slot}</div>
+            <div class="staff-slot-meta">Closed</div>
+          `;
+        } else if (booked >= 4) {
+          card.classList.add("full");
+          card.innerHTML = `
+            <div class="staff-slot-time">${slot}</div>
+            <div class="staff-slot-meta">4 / 4 · Full</div>
+          `;
+        } else if (booked >= 2) {
+          card.classList.add("limited");
+          card.innerHTML = `
+            <div class="staff-slot-time">${slot}</div>
+            <div class="staff-slot-meta">${booked} / 4 · Limited</div>
+          `;
+          card.addEventListener("click", async () => {
+            staffDate.value = day.date;
+            staffTime.value = slot;
+            await refreshStaffTimes();
+            staffTimeGrid.querySelectorAll(".time-btn").forEach(x => {
+              x.classList.toggle("selected", x.dataset.value === slot);
+            });
+            updateStaffSummary();
+          });
+        } else {
+          card.classList.add("available");
+          card.innerHTML = `
+            <div class="staff-slot-time">${slot}</div>
+            <div class="staff-slot-meta">${booked} / 4 · Available</div>
+          `;
+          card.addEventListener("click", async () => {
+            staffDate.value = day.date;
+            staffTime.value = slot;
+            await refreshStaffTimes();
+            staffTimeGrid.querySelectorAll(".time-btn").forEach(x => {
+              x.classList.toggle("selected", x.dataset.value === slot);
+            });
+            updateStaffSummary();
+          });
+        }
+
+        staffSlotStatus.appendChild(card);
+      });
+
+      if (!day.bookings || !day.bookings.length) {
+        staffTodayList.innerHTML = `<div style="color:#5c6b63;">No bookings for this date.</div>`;
+        return;
+      }
+
+      day.bookings.forEach(b => {
+        const card = document.createElement("div");
+        card.style.padding = "12px 14px";
+        card.style.border = "1px solid rgba(0,0,0,.08)";
+        card.style.borderRadius = "16px";
+        card.style.background = "#fff";
+        card.innerHTML = `
+          <div style="font-weight:900; color:#0f3d2e;">${b.time} · ${b.name}</div>
+          <div style="margin-top:4px; color:#5c6b63; font-size:14px;">
+            Adult ${b.adult_count} · Child ${b.child_count} · Baby ${b.baby_count}
+          </div>
+          <div style="margin-top:4px; color:#5c6b63; font-size:14px;">
+            ${b.source || "manual"} · ${b.phone || ""}
+          </div>
+          <div style="margin-top:4px; color:#5c6b63; font-size:14px;">
+            ${b.notes || ""}
+          </div>
+        `;
+        staffTodayList.appendChild(card);
+      });
+    }
+
+    staffSubmitBtn?.addEventListener("click", async () => {
+      staffOk.style.display = "none";
+      staffBad.style.display = "none";
+
+      if ((staffPasscode.value || "").trim() !== STAFF_PASSCODE) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Invalid staff passcode.";
+        return;
+      }
+
+      if (!staffName.value.trim()) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Please enter customer name.";
+        return;
+      }
+
+      if (!staffPhone.value.trim()) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Please enter customer phone.";
+        return;
+      }
+
+      if ((staffAdultCount() + staffChildCount() + staffBabyCount()) <= 0) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Please select guests.";
+        return;
+      }
+
+      if (!staffDate.value) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Please select a date.";
+        return;
+      }
+
+      if (!staffTime.value) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Please select a time.";
+        return;
+      }
+
+      const payload = {
+        passcode: staffPasscode.value.trim(),
+        type: "buffet",
+        name: staffName.value.trim(),
+        phone: staffPhone.value.trim(),
+        source: staffSource.value,
+        adult_count: staffAdultCount(),
+        child_count: staffChildCount(),
+        baby_count: staffBabyCount(),
+        guests: staffCapacityCount(),
+        date: staffDate.value,
+        time: staffTime.value,
+        notes: staffNotes.value.trim()
+      };
+
+      try {
+        const res = await fetch(`${WORKER_BASE_URL}/staff-create-booking`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          staffBad.style.display = "block";
+          staffBad.textContent = data.error || "Could not add booking.";
+          return;
+        }
+
+        staffOk.style.display = "block";
+        staffOk.textContent = "Booking added successfully.";
+
+        staffName.value = "";
+        staffPhone.value = "";
+        staffAdult.value = "0";
+        staffChild.value = "0";
+        staffBaby.value = "0";
+        staffNotes.value = "";
+        staffTime.value = "";
+
+        await refreshStaffTimes();
+        await loadStaffBoard();
+        updateStaffSummary();
+      } catch (err) {
+        staffBad.style.display = "block";
+        staffBad.textContent = "Could not connect to staff booking service.";
+      }
+    });
+
     const openDIYInfo = $("openDIYInfo");
     const diyInfoModal = $("diyInfoModal");
 
@@ -1939,6 +2628,7 @@
         if (diyInfoModal.classList.contains("open")) closeModal();
         if (dateModal.classList.contains("open")) closeDateModal();
         if (buffetDateModal.classList.contains("open")) closeBuffetDateModal();
+        if (staffDateModal.classList.contains("open")) closeStaffDateModal();
       }
     });
 
@@ -1955,6 +2645,12 @@
     refreshBuffetDateUI();
     refreshBuffetTimes();
     updateBuffetPaymentUI();
+
+    refreshStaffDateMin();
+    ensureStaffDateSelected();
+    refreshStaffDateUI();
+    refreshStaffTimes();
+    updateStaffSummary();
 
     showView("home");
   </script>
