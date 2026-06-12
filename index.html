@@ -1488,7 +1488,7 @@
 
     function getNextBuffetOpenDate(fromDate = new Date()){
       let d = addDays(fromDate, 1);
-      while (d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3) {
+      while (d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3 || d.getDay() === 4) {
         d = addDays(d, 1);
       }
       return localYMD(d);
@@ -1513,7 +1513,7 @@
 
     function refreshBuffetMinDate(){
       buffetMinDate = getNextBuffetOpenDate(new Date());
-      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon, Tue & Wed";
+      buffetDateRuleText.textContent = "Available from next open day · Closed on Mon, Tue, Wed & Thurs";
     }
 
     function refreshStaffDateMin(){
@@ -1543,7 +1543,7 @@
         return;
       }
       const d = ymdToDate(current);
-      const isClosedDay = d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3;
+      const isClosedDay = d.getDay() === 1 || d.getDay() === 2 || d.getDay() === 3 || d.getDay() === 4;
       if (current < buffetMinDate || isClosedDay) {
         buffetDateHidden.value = buffetMinDate;
       }
@@ -1660,7 +1660,7 @@
         btn.appendChild(d2);
 
         const dayOfWeek = d.getDay();
-        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3;
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3 || dayOfWeek === 4;
         const disabled = ymd < firstOpenDay || isClosedDay;
 
         if (disabled) {
@@ -1708,7 +1708,7 @@
         btn.appendChild(d2);
 
         const dayOfWeek = d.getDay();
-        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3;
+        const isClosedDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3 || dayOfWeek === 4;
         const disabled = ymd < firstOpenDay || isClosedDay;
 
         if (disabled) {
@@ -2029,7 +2029,7 @@
       }
 
       const currentDate = ymdToDate(d);
-      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3;
+      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3 || currentDate.getDay() === 4;
       if (isClosedDay) {
         buffetTimeGrid.innerHTML = "";
         buffetTimeEl.innerHTML = `<option value="">Select</option>`;
@@ -2093,7 +2093,7 @@
       }
 
       const currentDate = ymdToDate(d);
-      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3;
+      const isClosedDay = currentDate.getDay() === 1 || currentDate.getDay() === 2 || currentDate.getDay() === 3 || currentDate.getDay() === 4;
       if (isClosedDay) {
         staffTimeGrid.innerHTML = "";
         staffTime.innerHTML = `<option value="">Select</option>`;
@@ -2298,7 +2298,7 @@
       }
 
       const selectedObj = ymdToDate(selectedDate);
-      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2 || selectedObj.getDay() === 3) {
+      if (selectedObj.getDay() === 1 || selectedObj.getDay() === 2 || selectedObj.getDay() === 3 || selectedObj.getDay() === 4) {
         buffetBad.style.display = "block";
         buffetBad.textContent = "Buffet is unavailable on Mondays, Tuesdays and Wednesdays.";
         return;
